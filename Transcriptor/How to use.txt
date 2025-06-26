@@ -1,0 +1,18 @@
+Make a post request to 
+https://youtube-transcript-api-production-1411.up.railway.app/transcript
+# now dont make request here some issue here 
+# run app.py only 
+
+
+
+with raw json body 
+
+{
+  "url": "https://www.youtube.com/watch?v=HgldbQu3yQI",
+  "languages": ["hi","en"]
+}
+
+
+
+
+You will get the response ☺️
