@@ -4,59 +4,16 @@ import cors from "cors";
 import axios from 'axios';
 import express from 'express';
 
-
 const app = express();
-
 
 dotenv.config();
 app.use(cors());
 
 const GOOGLE_API_KEY = process.env.GEMINI_API;
-
 if (!GOOGLE_API_KEY) {
     throw new Error("GOOGLE_API_KEY environment variable not set.");
 }
-
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-
-// const SYSTEM_PROMPT = `
-// You are an AI project assistant designed to help learners build DIY projects based on concepts they've just learned.
-
-// Your job is to take one of the following inputs and generate a personalized project idea for a student:
-// 1. A concept (e.g., "binary search", "sorting algorithms", "object detection")
-// 2. A transcript of a lecture
-// 3. Text content from a YouTube video (e.g., title, description, key topics).
-
-// Your response must include a JSON object in the following format:
-
-// {
-//   "project_title": "string",
-//   "difficulty": "Beginner | Intermediate | Advanced",
-//   "domain": "Coding | Hardware | Design | Research | Mixed",
-//   "description": "Brief explanation of the project and how it relates to the source material",
-//   "inspired_by": "Brief note about what concept/video inspired this project (if applicable)",
-//   "steps": [
-//     "Step 1...",
-//     "Step 2...",
-//     "... etc"
-//   ],
-//   "technologies": ["list", "of", "tools", "used"],
-//   "estimated_time": "e.g., 2 hours / 3 days",
-//   "learning_objectives": ["What the student will learn from this project"],
-//   "hints": ["Tip 1...", "Tip 2..."],
-//   "bonus_challenges": ["Optional advanced features to implement"]
-// }
-
-// Guidelines:
-// - Create projects that build upon or complement the source content, not just copy it.
-// - Adapt complexity based on the apparent skill level suggested by the input.
-// - Ensure projects are hands-on and practical.
-// - Include progressive difficulty through bonus challenges.
-// - Provide encouraging hints to boost confidence.
-// - Use Markdown code blocks when embedding sample code.
-// - Make projects achievable within the estimated timeframe.
-// - Focus on learning reinforcement rather than recreation.
-// `;
 
 
 const SYSTEM_PROMPT = `
@@ -73,23 +30,34 @@ Your job is to take one of the following inputs and generate a personalized proj
 3. Text content from a YouTube video (e.g., title, description, key topics).
 
 Your response must include a JSON object in the following format:
-
 {
-  "project_title": "string",
-  "difficulty": "Beginner | Intermediate | Advanced",
-  "domain": "Coding | Hardware | Design | Research | Mixed",
-  "description": "Brief explanation of the project and how it relates to the source material",
-  "inspired_by": "Brief note about what concept/video inspired this project (if applicable)",
-  "steps": [
-    "Step 1...",
-    "Step 2...",
-    "... etc"
-  ],
-  "technologies": ["list", "of", "tools", "used"],
-  "estimated_time": "e.g., 2 hours / 3 days",
-  "learning_objectives": ["What the student will learn from this project"],
-  "hints": ["Tip 1...", "Tip 2..."],
-  "bonus_challenges": ["Optional advanced features to implement"]
+    {
+        id: 1,
+        title: "AI-Powered Interactive Dashboard",
+        description: "Build a stunning real-time dashboard with machine learning insights, data visualization, and responsive design that adapts to any device.",
+        difficulty: "Intermediate",
+        tags: ["React", "D3.js", "Machine Learning", "WebSocket"],
+        estimatedTime: "2-3 weeks",
+        category: "Full Stack"
+    },
+    {
+        id: 2,
+        title: "Smart Recommendation Engine",
+        description: "Create an intelligent recommendation system using collaborative filtering and deep learning to suggest personalized content to users.",
+        difficulty: "Advanced",
+        tags: ["Python", "TensorFlow", "Neural Networks", "API"],
+        estimatedTime: "3-4 weeks",
+        category: "AI/ML"
+    },
+    {
+        id: 3,
+        title: "Mobile-First Progressive Web App",
+        description: "Develop a lightning-fast PWA with offline capabilities, push notifications, and seamless mobile experience.",
+        difficulty: "Beginner",
+        tags: ["JavaScript", "Service Workers", "PWA", "Mobile"],
+        estimatedTime: "1-2 weeks",
+        category: "Mobile"
+    }
 }
 
 Guidelines:
@@ -102,7 +70,6 @@ Guidelines:
 - Make projects achievable within the estimated timeframe.
 - Focus on learning reinforcement rather than recreation.
 `;
-
 
 
 function extractJSON(text) {
@@ -132,7 +99,7 @@ function extractJSON(text) {
 }
 
 
-export const DIYmodel = async (req,res) => {
+export const DIYmodel = async (req, res) => {
 
     const { youtubelink, topic } = req.body;
     let youtube_transcript = '';
@@ -149,10 +116,10 @@ export const DIYmodel = async (req,res) => {
         }
     }
 
-    console.log(youtube_transcript);
+    // console.log(youtube_transcript);
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash", 
+        model: "gemini-2.0-flash",
         generationConfig: {
             temperature: 0.2,
             maxOutputTokens: 2048,
@@ -179,17 +146,17 @@ export const DIYmodel = async (req,res) => {
     try {
         console.log("Sending prompt to the model...");
         const result = await chat.sendMessage(userTopic);
-    
         const response = result.response;
-
         const json = extractJSON(response.text());
-        console.log(json);
-
+        // console.log(json);
         console.log("✅ Successfully received and parsed project idea:");
-        // console.log(JSON.stringify(json, null, 2));
+        res.send(json);
+
     } catch (error) {
         console.error("❌ Error during generation:", error.message);
     }
+
+
 }
 
 

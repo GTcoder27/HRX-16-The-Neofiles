@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFirebase } from '../context/Firebase.jsx';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer.jsx'
 
 
 const HomePage = () => {
@@ -21,7 +22,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-[#1a1a1a] text-white">
+    <div className="flex flex-col items-center justify-center  bg-[#1a1a1a] text-white">
       <h1 className="text-3xl font-bold mb-4">Welcome to the Home Page</h1>
       
       {authUser && (
@@ -40,6 +41,11 @@ const HomePage = () => {
       <button onClick={handlePerformCRUD}> 
         Perform CRUD Operations
       </button>
+
+      <div className='mt-10'>
+        <Footer/>
+      </div>
+
     </div>
   );
 };

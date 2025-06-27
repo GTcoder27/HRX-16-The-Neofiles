@@ -12,27 +12,46 @@ export default function GeneratePage() {
     if (concept.trim() || learningMaterial.trim()) {
       setIsLoading(true);
       setError(null);
+
+      // console.log("Concept : ",concept);
       
       try {
-        const response = await fetch('/api/generate-projects', {
+        const response = await fetch('http://localhost:3000/api/DIYmodel', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            concept: concept.trim(),
-            learningMaterial: learningMaterial.trim()
+            topic: concept.trim(),
+            youtubelink : learningMaterial.trim()
           }),
         });
+        // console.log("📡 Response from backend:", response.status, response.statusText);
 
         if (!response.ok) {
           throw new Error('Failed to generate projects');
         }
 
         const data = await response.json();
-        setProjects(data.projects || []);
-      } catch (err) {
+        console.log(data);
+
+
+        const formattedProjects = (data).map((project, index) => ({
+          id: index + 1,
+          title: project.title,
+          description: project.description,
+          difficulty: project.difficulty,
+          tags: project.tags,
+          estimatedTime: project.estimatedTime,
+          category: project.category
+        }));
+
+        setProjects(formattedProjects);
+        console.log(projects);
+      } 
+      catch (err) {
         setError(err.message);
+
         // Mock data for demonstration
         setProjects([
           {
@@ -373,8 +392,7 @@ export default function GeneratePage() {
         </div>
       </div>
 
-      {/* Custom CSS for animations */}
-      <style jsx>{`
+      <style jsx='true'>{`
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
@@ -394,6 +412,7 @@ export default function GeneratePage() {
           animation-delay: 1s;
         }
       `}</style>
+
     </div>
   );
 }

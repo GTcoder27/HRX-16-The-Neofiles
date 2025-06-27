@@ -1,25 +1,28 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from 'dotenv';
 import cors from "cors";
+import axios from 'axios';
 import express from 'express';
 
-
 const app = express();
-
 
 dotenv.config();
 app.use(cors());
 
 const GOOGLE_API_KEY = process.env.GEMINI_API;
-
 if (!GOOGLE_API_KEY) {
     throw new Error("GOOGLE_API_KEY environment variable not set.");
 }
-
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+
 
 const SYSTEM_PROMPT = `
 You are an AI project assistant designed to help learners build DIY projects based on concepts they've just learned.
+
+Only When the Youtube Transcript is given then -> {
+    The Youtube video Transcript will be provided to you , on the basis of Youtube transcript you have take out projects. 
+}
+
 
 Your job is to take one of the following inputs and generate a personalized project idea for a student:
 1. A concept (e.g., "binary search", "sorting algorithms", "object detection")
@@ -57,14 +60,9 @@ Guidelines:
 - Focus on learning reinforcement rather than recreation.
 `;
 
-/**
- * @param {string} text - The input string from the model.
- * @returns {object} The parsed JSON object.
- * @throws {Error} If no valid JSON is found.
- */
+
 function extractJSON(text) {
     const cleanText = text.trim();
-
     try {
         return JSON.parse(cleanText);
     } catch (err) {
@@ -77,22 +75,38 @@ function extractJSON(text) {
                 throw new Error(`Invalid JSON in markdown: ${parseErr.message}`);
             }
         }
-
         const objectMatch = cleanText.match(/({[\s\S]*})/);
         if (objectMatch && objectMatch[1]) {
             try {
                 return JSON.parse(objectMatch[1]);
             } catch (parseErr) {
-                // This fallback is less reliable, so the error is more generic
                 throw new Error(`Could not parse a valid JSON object from the response.`);
             }
         }
-
         throw new Error("No valid JSON found in the model's response.");
     }
 }
 
-async function init() {
+
+export const DIYmodel = async (req,res) => {
+
+    const { youtubelink, topic } = req.body;
+    let youtube_transcript = '';
+
+    if (youtubelink != '') {
+        try {
+            const response = await axios.post('http://localhost:5000/transcript', {
+                url: youtubelink,
+                languages: ['en', 'hi']
+            });
+            youtube_transcript = `"transcript : "${response.data.transcript}`;
+        } catch (error) {
+            console.error('Error fetching transcript:', error);
+        }
+    }
+
+    // console.log(youtube_transcript);
+
     const model = genAI.getGenerativeModel({
         model: "gemini-2.0-flash", 
         generationConfig: {
@@ -103,14 +117,7 @@ async function init() {
     });
 
 
-    const userTopic = `
-        Generate a project idea based on the following YouTube video content:
-        - Video Title: "I Made a GBA Game in 7 Days"
-        - Video URL: "https://youtu.be/hlGoQC332VM"
-        - Core Concepts: Game Boy Advance (GBA) development, C programming for embedded systems, 
-          2D sprite creation and animation, memory management on limited hardware, game loop implementation, 
-          handling player input, and basic game physics.
-    `;
+    const userTopic = `${topic}, ${youtube_transcript}`;
 
     const chat = model.startChat({
         history: [
@@ -128,17 +135,17 @@ async function init() {
     try {
         console.log("Sending prompt to the model...");
         const result = await chat.sendMessage(userTopic);
-    
         const response = result.response;
-
         const json = extractJSON(response.text());
         console.log(json);
-
         console.log("✅ Successfully received and parsed project idea:");
-        // console.log(JSON.stringify(json, null, 2));
+        res.send(json);
+
     } catch (error) {
         console.error("❌ Error during generation:", error.message);
     }
+
+
 }
 
-init().catch(console.error);
+
