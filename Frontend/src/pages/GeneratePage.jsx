@@ -175,8 +175,8 @@ export default function GeneratePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-xs text-gray-400 font-medium m-0 p-0 text-lef absolute transform translate-y-[-23px]">Suggested fields:</span>
+                  <div className="flex flex-row flex-wrap items-center gap-2 m-0 p-0 text-left">
                     {['AI & ML', 'Web Development', 'Mobile Apps', 'Data Science'].map((tag) => (
                       <button
                         key={tag}

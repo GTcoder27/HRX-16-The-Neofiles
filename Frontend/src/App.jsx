@@ -8,6 +8,7 @@ import {Loader} from "lucide-react";
 import PerformCRUDPage from './pages/PerformCRUDPage.jsx';
 import GeneratePage from './pages/GeneratePage.jsx'
 import Navbar from './components/Navbar.jsx'
+import UserDetails from './pages/UserDetails.jsx';
 
 function App() {
   const { authUser, isCheckingAuth } = useFirebase();
@@ -23,15 +24,15 @@ function App() {
 
   return (
     <div className='flex flex-col w-[100vw] h-[100%] text-center justify-center items-center'>
-      <Navbar />
 
+      <Navbar />
       <Routes>
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignupPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/performCRUD" element={authUser ? <PerformCRUDPage /> : <Navigate to="/" />} />
         <Route path="/ai" element={authUser ? <GeneratePage /> : <Navigate to="/" />} />
-
+        <Route path="/userdetails" element={authUser ? <UserDetails /> : <Navigate to="/login" />} />
       </Routes>
     </div>
   );
