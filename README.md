@@ -169,8 +169,11 @@ npm run dev
 
 | Interface | Functionality |
 |-----------|----------------|
-| ![Input Screen](screenshots/input.png) | YouTube URL or concept input |
-| ![Output Cards](screenshots/output.png) | Generated project ideas |
+| Input Screen
+![image](https://github.com/user-attachments/assets/39853e51-fa06-4dbe-9bff-c626c18d9129)
+ | YouTube URL or concept input |
+| Output Screen ![image](https://github.com/user-attachments/assets/56729bf9-3beb-4e51-9a96-bc65d8304293)
+ | Generated project ideas |
 
 ---
 
