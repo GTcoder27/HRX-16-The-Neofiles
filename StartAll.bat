@@ -1,0 +1,9 @@
+@echo off
+echo Starting Backend...
+start cmd /k "cd /d Backend && npm run dev"
+
+echo Starting Frontend...
+start cmd /k "cd /d Frontend && npm run dev"
+
+echo Starting Transcriptor...
+start cmd /k "cd /d Transcriptor && python app.py"

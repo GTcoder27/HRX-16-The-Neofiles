@@ -29,15 +29,60 @@ Whether you're a beginner looking to get started or an advanced learner seeking 
 
 ### 🔹 Sample Output (JSON)
 ```json
-{
-  "title": "AI-Powered Weather Dashboard",
-  "description": "Build a real-time visualization tool...",
-  "difficulty": "Beginner",
-  "domain": "Coding/Web Development",
-  "estimated_time": "10 hours",
-  "tools": ["React", "API Integration"],
-  "steps": ["Set up React environment...", "Integrate weather API..."]
-}
+[
+  {
+    "id": 1,
+    "title": "AI-Powered Interactive Dashboard",
+    "description": "Build a stunning real-time dashboard with machine learning insights, data visualization, and responsive design that adapts to any device.",
+    "difficulty": "Intermediate",
+    "tags": ["React", "D3.js", "Machine Learning", "WebSocket"],
+    "estimatedTime": "in hours, days or weeks",
+    "quickpreview": [
+      "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+      "• Step 2: Create a new project folder and initialize a Git repository.",
+      "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+      "• Step 4: Test the function with different inputs and handle edge cases.",
+      "• Step 5: Add a simple UI or visualization to interact with your function.",
+      "• Step 6: Package or document your project for sharing."
+    ],
+    "category": "Full Stack"
+  },
+  {
+    "id": 2,
+    "title": "Smart Recommendation Engine",
+    "description": "Create an intelligent recommendation system using collaborative filtering and deep learning to suggest personalized content to users.",
+    "difficulty": "Advanced",
+    "tags": ["Python", "TensorFlow", "Neural Networks", "API"],
+    "estimatedTime": "in hours, days or weeks",
+    "quickpreview": [
+      "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+      "• Step 2: Create a new project folder and initialize a Git repository.",
+      "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+      "• Step 4: Test the function with different inputs and handle edge cases.",
+      "• Step 5: Add a simple UI or visualization to interact with your function.",
+      "• Step 6: Package or document your project for sharing."
+    ],
+    "category": "AI/ML"
+  },
+  {
+    "id": 3,
+    "title": "Mobile-First Progressive Web App",
+    "description": "Develop a lightning-fast PWA with offline capabilities, push notifications, and seamless mobile experience.",
+    "difficulty": "Beginner",
+    "tags": ["JavaScript", "Service Workers", "PWA", "Mobile"],
+    "estimatedTime": "in hours, days or weeks",
+    "quickpreview": [
+      "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+      "• Step 2: Create a new project folder and initialize a Git repository.",
+      "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+      "• Step 4: Test the function with different inputs and handle edge cases.",
+      "• Step 5: Add a simple UI or visualization to interact with your function.",
+      "• Step 6: Package or document your project for sharing."
+    ],
+    "category": "Mobile"
+  }
+]
+
 ```
 
 ---
