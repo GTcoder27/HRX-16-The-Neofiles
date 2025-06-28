@@ -6,6 +6,7 @@ dotenv.config();
 
 // for voice to text
 export const speech_to_text =  async (req, res) => {  
+  console.log("speech_to_text endpoint hit");
   const { base64 } = req.body; 
   const payload = {
     pipelineTasks: [
