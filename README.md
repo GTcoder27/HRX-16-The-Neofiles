@@ -111,12 +111,12 @@ python transcript_service/app.py
 
 **Terminal 2: Backend**
 ```bash
-npm run dev --prefix backend
+npm run dev
 ```
 
 **Terminal 3: Frontend**
 ```bash
-npm run dev --prefix frontend
+npm run dev
 ```
 
 > Access the app at: [http://localhost:5173](http://localhost:5173)
