@@ -202,7 +202,7 @@ export default function GeneratePage() {
         <div className="text-center mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
             <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm font-medium">AI-Powered Project Generator</span>
+            <span className="text-sm font-medium">AI-Powered Project Recommendation</span>
           </div>
           <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
             Transform Ideas into Reality
@@ -240,9 +240,17 @@ export default function GeneratePage() {
                       <textarea
                         value={concept}
                         onChange={(e) => setConcept(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleGenerate();
+                          }
+                          // If Shift + Enter, let the default behavior insert a newline
+                        }}
                         placeholder="Machine Learning, Web Development, Game Design, Mobile Apps..."
                         className="w-full h-28 sm:h-32 lg:h-40 p-4 sm:p-6 bg-gradient-to-br from-emerald-50 to-cyan-50 border-2 border-transparent rounded-2xl text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 transition-all duration-300 group-hover:shadow-lg text-sm sm:text-base"
                       />
+
                       <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
 
                       {/* Voice Recording Button */}
@@ -294,9 +302,16 @@ export default function GeneratePage() {
                           type="url"
                           value={youtubelink}
                           onChange={(e) => setYoutubelink(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault(); 
+                              handleGenerate(); 
+                            }
+                          }}
                           placeholder="https://www.youtube.com/watch?v=..."
                           className="flex-1 bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none text-sm sm:text-base"
                         />
+
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-pink-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
@@ -408,14 +423,7 @@ export default function GeneratePage() {
                               )}
                             </div>
                           </div>
-
-                          {/* Action Button */}
-                          <div className="flex-shrink-0">
-                            <button className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105 flex items-center gap-2">
-                              <span>Start Project</span>
-                              <Rocket className="w-4 h-4" />
-                            </button>
-                          </div>
+                          
                         </div>
                       </div>
                     ))}
