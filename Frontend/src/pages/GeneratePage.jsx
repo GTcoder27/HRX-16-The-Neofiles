@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  
-  Heart, Clock, Target,Mic, Youtube,Link,MicOff, Play, ArrowRight, Eye, Share2, Trophy, ChevronRight,
-  GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload,Sparkles,Star, Share, Zap, Code, Palette, Rocket} from 'lucide-react';
+import {
+
+  Heart, Clock, Target, Mic, Youtube, Link, MicOff, Play, ArrowRight, Eye, Share2, Trophy, ChevronRight,
+  GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket
+} from 'lucide-react';
 import toast from "react-hot-toast";
 import axios from 'axios';
 const ProjectCard = ({ project, index }) => {
@@ -67,7 +68,7 @@ const ProjectCard = ({ project, index }) => {
     >
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
+
       {/* Floating particles effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(3)].map((_, i) => (
@@ -102,25 +103,23 @@ const ProjectCard = ({ project, index }) => {
               <p className="text-slate-400 text-sm text-left">{project.category}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button 
+            <button
               onClick={() => setIsLiked(!isLiked)}
-              className={`p-2 rounded-xl border transition-all duration-200 ${
-                isLiked 
-                  ? 'bg-red-500/20 border-red-500/30 text-red-400' 
-                  : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-red-400'
-              }`}
+              className={`p-2 rounded-xl border transition-all duration-200 ${isLiked
+                ? 'bg-red-500/20 border-red-500/30 text-red-400'
+                : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-red-400'
+                }`}
             >
               <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
             </button>
-            <button 
+            <button
               onClick={() => setIsBookmarked(!isBookmarked)}
-              className={`p-2 rounded-xl border transition-all duration-200 ${
-                isBookmarked 
-                  ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400' 
-                  : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-yellow-400'
-              }`}
+              className={`p-2 rounded-xl border transition-all duration-200 ${isBookmarked
+                ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'
+                : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-yellow-400'
+                }`}
             >
               <Star className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
@@ -162,7 +161,7 @@ const ProjectCard = ({ project, index }) => {
               <p className="text-white font-semibold">{project.estimatedTime}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30 flex-1">
             <div className="p-2 bg-purple-500/20 rounded-lg">
               <Target className="w-4 h-4 text-purple-400" />
@@ -172,8 +171,8 @@ const ProjectCard = ({ project, index }) => {
               <p className="text-white font-semibold">{project.difficulty}</p>
             </div>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setShowPreview(!showPreview)}
             className="p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group/preview flex items-center justify-center w-20"
             title={showPreview ? 'Hide preview' : 'Show preview'}
@@ -233,7 +232,7 @@ export default function GeneratePage() {
           },
           body: JSON.stringify({
             topic: concept.trim(),
-            youtubelink : youtubelink.trim()
+            youtubelink: youtubelink.trim()
           }),
         });
 
@@ -257,7 +256,7 @@ export default function GeneratePage() {
 
         setProjects(formattedProjects);
         console.log(projects);
-      } 
+      }
       catch (err) {
         setError(err.message);
 
@@ -296,7 +295,7 @@ export default function GeneratePage() {
       }
     }
   };
-  
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -430,8 +429,8 @@ export default function GeneratePage() {
                       <Lightbulb className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl lg:text-2xl font-bold text-white">What sparks your curiosity?</h2>
-                      <p className="text-gray-300 text-sm">Share your interests and passions</p>
+                      <h2 className="text-xl lg:text-2xl font-bold text-white text-left">What sparks your curiosity?</h2>
+                      <p className="text-gray-300 text-sm text-left">Share your interests and passions</p>
                     </div>
                   </div>
                   <div className="relative group">
@@ -463,8 +462,10 @@ export default function GeneratePage() {
                     </div>
                   </div>
 
-        {/* Quick Tags */}
-        <div className="flex flex-wrap gap-2">
+
+                  {/* Quick Tags */}
+                  <p className="text-slate-400 text-xs mb-2 absolute transform -translate-y-5">Suggested tags:</p>
+                  <div className="flex flex-wrap gap-2">
                     {['AI & ML', 'Web Development', 'Mobile Apps', 'Data Science'].map((tag) => (
                       <button
                         key={tag}
@@ -484,10 +485,10 @@ export default function GeneratePage() {
                       <Youtube className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words text-left">
                         Have a YouTube video?
                       </h2>
-                      <p className="text-gray-300 text-sm sm:text-base">
+                      <p className="text-gray-300 text-sm sm:text-base text-left">
                         Paste a YouTube link for personalized projects
                       </p>
                     </div>
@@ -503,8 +504,8 @@ export default function GeneratePage() {
                           onChange={(e) => setYoutubelink(e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              e.preventDefault(); 
-                              handleGenerate(); 
+                              e.preventDefault();
+                              handleGenerate();
                             }
                           }}
                           placeholder="https://www.youtube.com/watch?v=..."
@@ -559,7 +560,7 @@ export default function GeneratePage() {
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-white">Your Personalized Projects</h3>
                   </div>
-                  
+
                   {error && (
                     <div className="bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl p-6 mb-8 backdrop-blur-sm">
                       <div className="flex items-center gap-3">
