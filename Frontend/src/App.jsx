@@ -8,7 +8,7 @@ import {Loader} from "lucide-react";
 import PerformCRUDPage from './pages/PerformCRUDPage.jsx';
 import GeneratePage from './pages/GeneratePage.jsx'
 import Navbar from './components/Navbar.jsx'
-import UserDetails from './pages/UserDetails.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 import {Toaster} from "react-hot-toast";
 
 
@@ -35,7 +35,7 @@ function App() {
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/performCRUD" element={authUser ? <PerformCRUDPage /> : <Navigate to="/" />} />
         <Route path="/ai" element={authUser ? <GeneratePage /> : <Navigate to="/" />} />
-        <Route path="/userdetails" element={authUser ? <UserDetails /> : <Navigate to="/login" />} />
+        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
       <Toaster />
     </div>

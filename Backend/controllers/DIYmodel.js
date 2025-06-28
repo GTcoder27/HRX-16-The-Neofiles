@@ -37,7 +37,15 @@ Your response must include a JSON object in the following format:
         description: "Build a stunning real-time dashboard with machine learning insights, data visualization, and responsive design that adapts to any device.",
         difficulty: "Intermediate",
         tags: ["React", "D3.js", "Machine Learning", "WebSocket"],
-        estimatedTime: "2-3 weeks",
+        estimatedTime: "in hours, days or weeks",
+         "quickpreview": [
+    "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+    "• Step 2: Create a new project folder and initialize a Git repository.",
+    "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+    "• Step 4: Test the function with different inputs and handle edge cases.",
+    "• Step 5: Add a simple UI or visualization to interact with your function.",
+    "• Step 6: Package or document your project for sharing."
+  ],
         category: "Full Stack"
     },
     {
@@ -46,7 +54,15 @@ Your response must include a JSON object in the following format:
         description: "Create an intelligent recommendation system using collaborative filtering and deep learning to suggest personalized content to users.",
         difficulty: "Advanced",
         tags: ["Python", "TensorFlow", "Neural Networks", "API"],
-        estimatedTime: "3-4 weeks",
+        estimatedTime: "in hours, days or weeks",
+         "quickpreview": [
+    "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+    "• Step 2: Create a new project folder and initialize a Git repository.",
+    "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+    "• Step 4: Test the function with different inputs and handle edge cases.",
+    "• Step 5: Add a simple UI or visualization to interact with your function.",
+    "• Step 6: Package or document your project for sharing."
+  ],
         category: "AI/ML"
     },
     {
@@ -55,7 +71,15 @@ Your response must include a JSON object in the following format:
         description: "Develop a lightning-fast PWA with offline capabilities, push notifications, and seamless mobile experience.",
         difficulty: "Beginner",
         tags: ["JavaScript", "Service Workers", "PWA", "Mobile"],
-        estimatedTime: "1-2 weeks",
+        estimatedTime: "in hours, days or weeks",
+         "quickpreview": [
+    "• Step 1: Set up your development environment. For example, install Python and required libraries like OpenCV.",
+    "• Step 2: Create a new project folder and initialize a Git repository.",
+    "• Step 3: Implement the core feature—such as writing a function for binary search or face detection.",
+    "• Step 4: Test the function with different inputs and handle edge cases.",
+    "• Step 5: Add a simple UI or visualization to interact with your function.",
+    "• Step 6: Package or document your project for sharing."
+  ],
         category: "Mobile"
     }
 }
@@ -70,6 +94,8 @@ Guidelines:
 - Make projects achievable within the estimated timeframe.
 - Focus on learning reinforcement rather than recreation.
 `;
+
+
 
 
 function extractJSON(text) {

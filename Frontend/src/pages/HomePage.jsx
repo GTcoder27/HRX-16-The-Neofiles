@@ -44,7 +44,7 @@ const HomePage = () => {
         {/* Hero Problem Statement - NEW */}
         <div className="text-center mb-12 mt-0">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+            <h1 className="text-4xl p-5 lg:text-6xl font-bold  bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
               From Learning to Building
             </h1>
             <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-xl rounded-3xl p-8 border border-white/20 mb-8">

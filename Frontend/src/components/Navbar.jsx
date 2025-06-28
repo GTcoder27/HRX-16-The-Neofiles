@@ -75,9 +75,9 @@ export default function Header() {
                         <button
                           type="button"
                           className="w-full flex justify-center items-center px-4 py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold hover:bg-gradient-to-r hover:from-cyan-500 hover:to-purple-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
-                          onClick={() => { navigate('/userdetails'); setOpen(false); }}
+                          onClick={() => { navigate('/profile'); setOpen(false); }}
                         >
-                          User Details
+                          User Profile
                         </button>
                         <div className="text-xs text-gray-500 break-all">{email}</div>
                       </div>

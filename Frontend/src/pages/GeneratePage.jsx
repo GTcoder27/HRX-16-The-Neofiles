@@ -1,7 +1,212 @@
 import React, { useState } from 'react';
-import { Image, Send, X, Loader, Mic, MicOff, Link, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket, Youtube } from 'lucide-react';
+import { 
+  
+  Heart, Clock, Target,Mic, Youtube,Link,MicOff, Play, ArrowRight, Eye, Share2, Trophy, ChevronRight,
+  GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload,Sparkles,Star, Share, Zap, Code, Palette, Rocket} from 'lucide-react';
 import toast from "react-hot-toast";
 import axios from 'axios';
+const ProjectCard = ({ project, index }) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const getDifficultyConfig = (difficulty) => {
+    switch (difficulty) {
+      case 'Advanced':
+        return {
+          gradient: 'from-red-500 via-pink-500 to-purple-600',
+          bg: 'bg-red-500/10',
+          border: 'border-red-500/30',
+          text: 'text-red-300',
+          icon: '🔥'
+        };
+      case 'Intermediate':
+        return {
+          gradient: 'from-yellow-400 via-orange-500 to-red-500',
+          bg: 'bg-orange-500/10',
+          border: 'border-orange-500/30',
+          text: 'text-orange-300',
+          icon: '⚡'
+        };
+      default:
+        return {
+          gradient: 'from-green-400 via-emerald-500 to-teal-600',
+          bg: 'bg-green-500/10',
+          border: 'border-green-500/30',
+          text: 'text-green-300',
+          icon: '🌱'
+        };
+    }
+  };
+
+  const getCategoryConfig = (category) => {
+    switch (category) {
+      case 'AI/ML':
+        return { icon: <Zap className="w-4 h-4" />, color: 'text-purple-400', bg: 'bg-purple-500/20' };
+      case 'Full Stack':
+        return { icon: <Code className="w-4 h-4" />, color: 'text-blue-400', bg: 'bg-blue-500/20' };
+      case 'Mobile':
+        return { icon: <Smartphone className="w-4 h-4" />, color: 'text-green-400', bg: 'bg-green-500/20' };
+      case 'Data Science':
+        return { icon: <Database className="w-4 h-4" />, color: 'text-cyan-400', bg: 'bg-cyan-500/20' };
+      case 'Web Development':
+        return { icon: <Globe className="w-4 h-4" />, color: 'text-orange-400', bg: 'bg-orange-500/20' };
+      default:
+        return { icon: <Palette className="w-4 h-4" />, color: 'text-pink-400', bg: 'bg-pink-500/20' };
+    }
+  };
+
+  const difficultyConfig = getDifficultyConfig(project.difficulty);
+  const categoryConfig = getCategoryConfig(project.category);
+  const hasQuickPreview = Array.isArray(project['quick-preview']) && project['quick-preview'].length > 0;
+
+  return (
+    <div
+      className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/50 via-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/10"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      {/* Floating particles effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-cyan-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+            style={{
+              left: `${20 + i * 30}%`,
+              top: `${20 + i * 20}%`,
+              animationDelay: `${i * 0.5}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 p-8">
+        {/* Header with actions */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className={`p-3 rounded-2xl ${categoryConfig.bg} border border-slate-600/30`}>
+              <div className={categoryConfig.color}>
+                {categoryConfig.icon}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${difficultyConfig.bg} ${difficultyConfig.border} border ${difficultyConfig.text}`}>
+                  <span>{difficultyConfig.icon}</span>
+                  {project.difficulty}
+                </span>
+              </div>
+              <p className="text-slate-400 text-sm text-left">{project.category}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button 
+              onClick={() => setIsLiked(!isLiked)}
+              className={`p-2 rounded-xl border transition-all duration-200 ${
+                isLiked 
+                  ? 'bg-red-500/20 border-red-500/30 text-red-400' 
+                  : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-red-400'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+            </button>
+            <button 
+              onClick={() => setIsBookmarked(!isBookmarked)}
+              className={`p-2 rounded-xl border transition-all duration-200 ${
+                isBookmarked 
+                  ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400' 
+                  : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-yellow-400'
+              }`}
+            >
+              <Star className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Project title and description */}
+        <div className="mb-6">
+          <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300">
+            {project.title}
+          </h3>
+          <p className="text-slate-300 leading-relaxed text-lg">
+            {project.description}
+          </p>
+        </div>
+
+        {/* Enhanced tags */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag, tagIndex) => (
+              <span
+                key={tagIndex}
+                className="px-3 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-200 rounded-xl text-sm font-medium backdrop-blur-sm hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-400/40 transition-all cursor-default hover:scale-105"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats and metadata */}
+        <div className="flex gap-4 mb-6">
+          <div className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30 flex-1">
+            <div className="p-2 bg-green-500/20 rounded-lg">
+              <Clock className="w-4 h-4 text-green-400" />
+            </div>
+            <div>
+              <p className="text-slate-400 text-xs uppercase tracking-wide text-left">Duration</p>
+              <p className="text-white font-semibold">{project.estimatedTime}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30 flex-1">
+            <div className="p-2 bg-purple-500/20 rounded-lg">
+              <Target className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-slate-400 text-xs uppercase tracking-wide text-left">Level</p>
+              <p className="text-white font-semibold">{project.difficulty}</p>
+            </div>
+          </div>
+          
+          <button 
+            onClick={() => setShowPreview(!showPreview)}
+            className="p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group/preview flex items-center justify-center w-20"
+            title={showPreview ? 'Hide preview' : 'Show preview'}
+          >
+            <Eye className="w-5 h-5 group-hover/preview:scale-110 transition-transform" />
+          </button>
+        </div>
+
+        {/* Preview section */}
+        {showPreview && (
+          <div className="mt-6 p-4 bg-slate-800/40 rounded-2xl border border-slate-700/30 backdrop-blur-sm">
+            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-yellow-400" />
+              Quick Preview
+            </h4>
+            <div className="space-y-2 text-sm text-slate-300 text-left">
+              {
+                project.quickpreview.map((preview, idx) => (
+                  <p key={idx} className="text-left">
+                    {preview}
+                  </p>
+                ))
+              }
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Hover glow effect */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-cyan-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500 pointer-events-none"></div>
+    </div>
+  );
+};
 
 export default function GeneratePage() {
   const [concept, setConcept] = useState('');
@@ -28,7 +233,7 @@ export default function GeneratePage() {
           },
           body: JSON.stringify({
             topic: concept.trim(),
-            youtubelink: youtubelink.trim()
+            youtubelink : youtubelink.trim()
           }),
         });
 
@@ -39,20 +244,20 @@ export default function GeneratePage() {
         const data = await response.json();
         console.log(data);
 
-
         const formattedProjects = (data).map((project, index) => ({
           id: index + 1,
           title: project.title,
           description: project.description,
           difficulty: project.difficulty,
           tags: project.tags,
+          quickpreview: project.quickpreview,
           estimatedTime: project.estimatedTime,
           category: project.category
         }));
 
         setProjects(formattedProjects);
         console.log(projects);
-      }
+      } 
       catch (err) {
         setError(err.message);
 
@@ -91,7 +296,7 @@ export default function GeneratePage() {
       }
     }
   };
-
+  
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -202,7 +407,7 @@ export default function GeneratePage() {
         <div className="text-center mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
             <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm font-medium">AI-Powered Project Recommendation</span>
+            <span className="text-sm font-medium">AI-Powered Project Generator</span>
           </div>
           <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
             Transform Ideas into Reality
@@ -218,23 +423,17 @@ export default function GeneratePage() {
             {/* Form Section */}
             <div className="p-6 lg:p-12">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-
                 {/* Left Column - Curiosity */}
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Lightbulb className="w-6 h-6 text-white" />
                     </div>
-                    <div className="min-w-0">
-                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
-                        What sparks your curiosity?
-                      </h2>
-                      <p className="text-gray-300 text-sm sm:text-base">
-                        Share your interests and passions
-                      </p>
+                    <div>
+                      <h2 className="text-xl lg:text-2xl font-bold text-white">What sparks your curiosity?</h2>
+                      <p className="text-gray-300 text-sm">Share your interests and passions</p>
                     </div>
                   </div>
-
                   <div className="relative group">
                     <div className="relative">
                       <textarea
@@ -264,8 +463,8 @@ export default function GeneratePage() {
                     </div>
                   </div>
 
-                  {/* Quick Tags */}
-                  <div className="flex flex-wrap gap-2">
+        {/* Quick Tags */}
+        <div className="flex flex-wrap gap-2">
                     {['AI & ML', 'Web Development', 'Mobile Apps', 'Data Science'].map((tag) => (
                       <button
                         key={tag}
@@ -350,7 +549,7 @@ export default function GeneratePage() {
               </div>
             </div>
 
-            {/* Results Section */}
+            {/* Enhanced Results Section with Project Cards */}
             {(projects.length > 0 || error) && (
               <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm">
                 <div className="p-6 lg:p-12">
@@ -360,7 +559,7 @@ export default function GeneratePage() {
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-white">Your Personalized Projects</h3>
                   </div>
-
+                  
                   {error && (
                     <div className="bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl p-6 mb-8 backdrop-blur-sm">
                       <div className="flex items-center gap-3">
@@ -375,57 +574,10 @@ export default function GeneratePage() {
                     </div>
                   )}
 
-                  <div className="grid gap-6 lg:gap-8">
+                  {/* Enhanced Project Cards Grid */}
+                  <div className="grid gap-8">
                     {projects.map((project, index) => (
-                      <div
-                        key={project.id}
-                        className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-6 lg:p-8 border border-white/20 hover:border-white/40 transition-all duration-500 hover:transform hover:scale-[1.02] hover:shadow-2xl group"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-                          {/* Project Info */}
-                          <div className="flex-1 space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                              <h4 className="text-xl lg:text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">
-                                {project.title}
-                              </h4>
-                              <div className="flex items-center gap-3">
-                                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-lg ${getDifficultyStyle(project.difficulty)}`}>
-                                  {getCategoryIcon(project.category)}
-                                  {project.difficulty}
-                                </span>
-                              </div>
-                            </div>
-
-                            <p className="text-gray-300 text-lg leading-relaxed">
-                              {project.description}
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row gap-4">
-                              <div className="flex flex-wrap gap-2">
-                                {project.tags.map((tag, tagIndex) => (
-                                  <span
-                                    key={tagIndex}
-                                    className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-blue-200 rounded-full text-sm font-medium backdrop-blur-sm hover:from-blue-500/30 hover:to-purple-500/30 transition-all cursor-default"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-
-                              {project.estimatedTime && (
-                                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                                  <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                  </div>
-                                  <span>{project.estimatedTime}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                        </div>
-                      </div>
+                      <ProjectCard key={project.id} project={project} index={index} />
                     ))}
                   </div>
                 </div>
@@ -433,7 +585,6 @@ export default function GeneratePage() {
             )}
           </div>
         </div>
-
       </div>
 
       <style jsx='true'>{`

@@ -18,10 +18,6 @@ app.use(cors());
 // // allowedHeaders: ["Content-Type", "Authorization"]  //Add other headers you want to pass through CORS request
 // }));
 
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
 
 app.use("/api",modelRoutes);
 

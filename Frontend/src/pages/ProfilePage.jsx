@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFirebase } from '../context/Firebase.jsx';
 
-export default function UserDetails() {
+export default function ProfilePage() {
   const { authUser, getData, updateData } = useFirebase();
   const [form, setForm] = useState({
     firstName: '',

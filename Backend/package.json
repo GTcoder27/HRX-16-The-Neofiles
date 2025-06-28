@@ -22,7 +22,6 @@
     "express": "^5.1.0",
     "https": "^1.0.0",
     "node": "^24.2.0",
-    "nodemon": "^3.1.10",
     "openai": "^5.7.0",
     "youtube-transcript": "^1.2.1"
   }
