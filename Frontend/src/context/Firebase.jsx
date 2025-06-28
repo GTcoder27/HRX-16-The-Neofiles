@@ -114,8 +114,15 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-  const create_user = async (email,fullname,experience="begineer") => {
+
+
+
+  const create_user = async (email,fullname) => {
     let collectionName = "users"; 
+    let experience = "";
+    let res = getData(collectionName,email);
+    experience = res.data.experience;
+    
     let data = {
         fullname:fullname,
         experience:experience,
@@ -128,6 +135,23 @@ export const FirebaseProvider = (props) => {
       return { success: false, error: error.message };
     }
   };
+
+  const update_user = async (email,fullname,experience) => {
+    let collectionName = "users"; 
+    let data = {
+        fullname:fullname,
+        experience:experience,
+    }
+    console.log(data);
+    try {
+      await setDoc(doc(firestore, collectionName , email), data);
+      return { success: true, message: "user data updated successfully." };
+    } catch (error) {
+      console.error("error updating user data : ", error);
+      return { success: false, error: error.message };
+    }
+  };
+
 
 
 
@@ -145,6 +169,8 @@ export const FirebaseProvider = (props) => {
         updateData,
         deleteData,
         create_user,
+        update_user,
+
       }}
     >
       {props.children}

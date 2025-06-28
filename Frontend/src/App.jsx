@@ -10,6 +10,7 @@ import GeneratePage from './pages/GeneratePage.jsx'
 import Navbar from './components/Navbar.jsx'
 import ProfilePage from './pages/ProfilePage.jsx';
 import {Toaster} from "react-hot-toast";
+import ProjectPage from './pages/ProjectPage.jsx';
 
 
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/performCRUD" element={authUser ? <PerformCRUDPage /> : <Navigate to="/" />} />
         <Route path="/ai" element={authUser ? <GeneratePage /> : <Navigate to="/" />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/project" element={authUser ? <ProjectPage /> : <Navigate to="/login" />} />
       </Routes>
       <Toaster />
     </div>

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState , useRef} from 'react';
 import {
-
   Heart, Clock, Target, Mic, Youtube, Link, MicOff, Play, ArrowRight, Eye, Share2, Trophy, ChevronRight,
   GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket
 } from 'lucide-react';
@@ -216,6 +215,8 @@ export default function GeneratePage() {
   const [audioChunks, setAudioChunks] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
+  const projectSectionRef = useRef(null);
+
 
   const canGenerate = concept.trim() || youtubelink.trim();
 
@@ -255,6 +256,10 @@ export default function GeneratePage() {
         }));
 
         setProjects(formattedProjects);
+        setTimeout(() => {
+          projectSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100); 
+
         console.log(projects);
       }
       catch (err) {
@@ -408,7 +413,7 @@ export default function GeneratePage() {
             <Sparkles className="w-4 h-4 text-cyan-400" />
             <span className="text-sm font-medium">AI-Powered Project Generator</span>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl lg:text-6xl p-3 font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
             Transform Ideas into Reality
           </h1>
           <p className="text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
@@ -429,8 +434,8 @@ export default function GeneratePage() {
                       <Lightbulb className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl lg:text-2xl font-bold text-white text-left">What sparks your curiosity?</h2>
-                      <p className="text-gray-300 text-sm text-left">Share your interests and passions</p>
+                      <h2 className="text-xl lg:text-2xl font-bold text-white">What sparks your curiosity?</h2>
+                      <p className="text-gray-300 text-sm">Share your interests and passions</p>
                     </div>
                   </div>
                   <div className="relative group">
@@ -462,9 +467,7 @@ export default function GeneratePage() {
                     </div>
                   </div>
 
-
                   {/* Quick Tags */}
-                  <p className="text-slate-400 text-xs mb-2 absolute transform -translate-y-5">Suggested tags:</p>
                   <div className="flex flex-wrap gap-2">
                     {['AI & ML', 'Web Development', 'Mobile Apps', 'Data Science'].map((tag) => (
                       <button
@@ -485,10 +488,10 @@ export default function GeneratePage() {
                       <Youtube className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words text-left">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
                         Have a YouTube video?
                       </h2>
-                      <p className="text-gray-300 text-sm sm:text-base text-left">
+                      <p className="text-gray-300 text-sm sm:text-base">
                         Paste a YouTube link for personalized projects
                       </p>
                     </div>
@@ -576,7 +579,7 @@ export default function GeneratePage() {
                   )}
 
                   {/* Enhanced Project Cards Grid */}
-                  <div className="grid gap-8">
+                  <div className="grid gap-8" ref={projectSectionRef}>
                     {projects.map((project, index) => (
                       <ProjectCard key={project.id} project={project} index={index} />
                     ))}
