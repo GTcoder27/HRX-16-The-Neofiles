@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useFirebase } from '../context/Firebase';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import toast from "react-hot-toast";
+
+
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +16,7 @@ const LoginPage = () => {
     try {
       await firebase.loginUserWithEmailAndPassword(email, password);
       navigate("/");
+      toast.success("Logged in Successfully");
     } catch (error) {
       alert("Login failed: " + error.message);
     }
@@ -21,18 +25,20 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     try {
       await firebase.signupWithGoogle();
+      toast.success("Logged In");
       navigate("/");
     } catch (error) {
-      alert("Google Sign-In failed: " + error.message);
+      toast.error("Google Sign-In failed:");
+      // alert("Google Sign-In failed: " + error.message);
     }
   };
 
-  const handleRegister = ()=>{
-    try{
+  const handleRegister = () => {
+    try {
       navigate("/signup");
     }
     catch (error) {
-      alert( error.message);
+      alert(error.message);
     }
   }
 
@@ -68,15 +74,15 @@ const LoginPage = () => {
             className="p-3 w-full rounded-lg font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:from-cyan-400 hover:to-blue-600 transition"
           >
             Login
-      </button>
-      <button
-        onClick={handleGoogleLogin}
-        className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Login with Google
-      </button>
+          </button>
+          <button
+            onClick={handleGoogleLogin}
+            className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Login with Google
+          </button>
 
-      <button onClick={handleRegister}>Register</button>
+          <button onClick={handleRegister}>Register</button>
         </div>
       </div>
     </div>

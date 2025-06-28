@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { Lightbulb, Upload, Sparkles, Star, Share, Loader, Zap, Code, Palette, Rocket } from 'lucide-react';
+import { Image, Send, X, Loader, Mic, MicOff,Link, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket, Youtube } from 'lucide-react';
+import toast from "react-hot-toast";
+import axios from 'axios';
 
 export default function GeneratePage() {
   const [concept, setConcept] = useState('');
-  const [learningMaterial, setLearningMaterial] = useState('');
+  const [youtubelink, setYoutubelink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+
+  const canGenerate = concept.trim() || youtubelink.trim();
 
   const handleGenerate = async () => {
-    if (concept.trim() || learningMaterial.trim()) {
+    if (concept.trim() || youtubelink.trim()) {
       setIsLoading(true);
       setError(null);
 
-      // console.log("Concept : ",concept);
-      
       try {
         const response = await fetch('http://localhost:3000/api/DIYmodel', {
           method: 'POST',
@@ -23,10 +28,9 @@ export default function GeneratePage() {
           },
           body: JSON.stringify({
             topic: concept.trim(),
-            youtubelink : learningMaterial.trim()
+            youtubelink: youtubelink.trim()
           }),
         });
-        // console.log("📡 Response from backend:", response.status, response.statusText);
 
         if (!response.ok) {
           throw new Error('Failed to generate projects');
@@ -48,7 +52,7 @@ export default function GeneratePage() {
 
         setProjects(formattedProjects);
         console.log(projects);
-      } 
+      }
       catch (err) {
         setError(err.message);
 
@@ -88,7 +92,67 @@ export default function GeneratePage() {
     }
   };
 
-  const canGenerate = concept.trim() || learningMaterial.trim();
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+      recorder.onstop = () => {
+        setAudioChunks(chunks);
+        handleTranscription(chunks);
+      };
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (err) {
+      toast.error("Microphone permission denied");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // remove data:*/*;base64,
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  const handleTranscription = async (chunks) => {
+    const audioBlob = new Blob(chunks, { type: "audio/flac" });
+    let base64 = await blobToBase64(audioBlob);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/speech_to_text",
+        { base64 }
+      );
+
+      const transcript = response.data?.pipelineResponse?.[0]?.output?.[0].source || "";
+      console.log(transcript);
+
+      if (transcript) {
+        let temp = concept;
+        setConcept(temp + transcript);
+      }
+      else {
+        toast.error("No transcript found.");
+      }
+    } catch (err) {
+      console.error("Transcription failed:", err);
+      toast.error("Transcription failed");
+    }
+  };
 
   const getDifficultyStyle = (difficulty) => {
     switch (difficulty) {
@@ -154,34 +218,51 @@ export default function GeneratePage() {
             {/* Form Section */}
             <div className="p-6 lg:p-12">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
                 {/* Left Column - Curiosity */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Lightbulb className="w-6 h-6 text-white" />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-xl lg:text-2xl font-bold text-white">What sparks your curiosity?</h2>
-                      <p className="text-gray-300 text-sm">Share your interests and passions</p>
+                    <div className="min-w-0">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
+                        What sparks your curiosity?
+                      </h2>
+                      <p className="text-gray-300 text-sm sm:text-base">
+                        Share your interests and passions
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="relative group">
-                    <textarea
-                      value={concept}
-                      onChange={(e) => setConcept(e.target.value)}
-                      placeholder="Machine Learning, Web Development, Game Design, Mobile Apps..."
-                      className="w-full h-32 lg:h-40 p-6 bg-gradient-to-br from-emerald-50 to-cyan-50 border-2 border-transparent rounded-2xl text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 transition-all duration-300 group-hover:shadow-lg"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <div className="relative">
+                      <textarea
+                        value={concept}
+                        onChange={(e) => setConcept(e.target.value)}
+                        placeholder="Machine Learning, Web Development, Game Design, Mobile Apps..."
+                        className="w-full h-28 sm:h-32 lg:h-40 p-4 sm:p-6 bg-gradient-to-br from-emerald-50 to-cyan-50 border-2 border-transparent rounded-2xl text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 transition-all duration-300 group-hover:shadow-lg text-sm sm:text-base"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+
+                      {/* Voice Recording Button */}
+                      <button
+                        type="button"
+                        className=" absolute bottom-3 right-3 rounded-full "
+                        onClick={isRecording ? stopRecording : startRecording}
+                      >
+                        {isRecording ? <MicOff size={20} className="text-red-500" /> : <Mic size={20} />}
+                      </button>
+                    </div>
                   </div>
-                  <span className="block text-xs text-gray-400 font-medium m-0 p-0 text-lef absolute transform translate-y-[-23px]">Suggested fields:</span>
-                  <div className="flex flex-row flex-wrap items-center gap-2 m-0 p-0 text-left">
+
+                  {/* Quick Tags */}
+                  <div className="flex flex-wrap gap-2">
                     {['AI & ML', 'Web Development', 'Mobile Apps', 'Data Science'].map((tag) => (
                       <button
                         key={tag}
                         onClick={() => setConcept(concept + (concept ? ', ' : '') + tag)}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 border border-white/20"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 border border-white/20 text-white"
                       >
                         {tag}
                       </button>
@@ -189,36 +270,35 @@ export default function GeneratePage() {
                   </div>
                 </div>
 
-                {/* Right Column - Learning Material */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-rose-400 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Upload className="w-6 h-6 text-white" />
+                {/* Right Column - YouTube Link */}
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <Youtube className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-xl lg:text-2xl font-bold text-white">Have learning material?</h2>
-                      <p className="text-gray-300 text-sm">Upload content for personalized suggestions</p>
+                    <div className="min-w-0">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
+                        Have a YouTube video?
+                      </h2>
+                      <p className="text-gray-300 text-sm sm:text-base">
+                        Paste a YouTube link for personalized projects
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="relative group">
-                    <textarea
-                      value={learningMaterial}
-                      onChange={(e) => setLearningMaterial(e.target.value)}
-                      placeholder="Paste video transcripts, lecture notes, articles, or any learning content here..."
-                      className="w-full h-32 lg:h-40 p-6 bg-gradient-to-br from-pink-50 to-rose-50 border-2 border-transparent rounded-2xl text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-400/20 transition-all duration-300 group-hover:shadow-lg"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-300">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span>AI will analyze your content</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse animation-delay-1000"></div>
-                      <span>Get relevant project ideas</span>
+                    <div className="relative">
+                      <div className="flex items-center gap-3 p-4 sm:p-6 bg-gradient-to-br from-red-50 to-pink-50 border-2 border-transparent rounded-2xl focus-within:border-red-400 focus-within:ring-4 focus-within:ring-red-400/20 transition-all duration-300 group-hover:shadow-lg">
+                        <Link className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                        <input
+                          type="url"
+                          value={youtubelink}
+                          onChange={(e) => setYoutubelink(e.target.value)}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className="flex-1 bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none text-sm sm:text-base"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-pink-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
                   </div>
                 </div>
@@ -229,11 +309,10 @@ export default function GeneratePage() {
                 <button
                   onClick={handleGenerate}
                   disabled={!canGenerate || isLoading}
-                  className={`inline-flex items-center gap-3 px-12 py-4 lg:px-16 lg:py-5 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${
-                    canGenerate && !isLoading
-                      ? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-xl hover:shadow-cyan-500/25' 
+                  className={`inline-flex items-center gap-3 px-12 py-4 lg:px-16 lg:py-5 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${canGenerate && !isLoading
+                      ? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-xl hover:shadow-cyan-500/25'
                       : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -247,7 +326,7 @@ export default function GeneratePage() {
                     </>
                   )}
                 </button>
-                
+
                 {!canGenerate && !isLoading && (
                   <p className="text-gray-400 mt-4 text-sm">
                     Fill in at least one field to unlock your potential ✨
@@ -266,7 +345,7 @@ export default function GeneratePage() {
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-white">Your Personalized Projects</h3>
                   </div>
-                  
+
                   {error && (
                     <div className="bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl p-6 mb-8 backdrop-blur-sm">
                       <div className="flex items-center gap-3">
@@ -283,8 +362,8 @@ export default function GeneratePage() {
 
                   <div className="grid gap-6 lg:gap-8">
                     {projects.map((project, index) => (
-                      <div 
-                        key={project.id} 
+                      <div
+                        key={project.id}
                         className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-6 lg:p-8 border border-white/20 hover:border-white/40 transition-all duration-500 hover:transform hover:scale-[1.02] hover:shadow-2xl group"
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
@@ -302,23 +381,23 @@ export default function GeneratePage() {
                                 </span>
                               </div>
                             </div>
-                            
+
                             <p className="text-gray-300 text-lg leading-relaxed">
                               {project.description}
                             </p>
-                            
+
                             <div className="flex flex-col sm:flex-row gap-4">
                               <div className="flex flex-wrap gap-2">
                                 {project.tags.map((tag, tagIndex) => (
-                                  <span 
-                                    key={tagIndex} 
+                                  <span
+                                    key={tagIndex}
                                     className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-blue-200 rounded-full text-sm font-medium backdrop-blur-sm hover:from-blue-500/30 hover:to-purple-500/30 transition-all cursor-default"
                                   >
                                     {tag}
                                   </span>
                                 ))}
                               </div>
-                              
+
                               {project.estimatedTime && (
                                 <div className="flex items-center gap-2 text-gray-400 text-sm">
                                   <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -353,7 +432,7 @@ export default function GeneratePage() {
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Why Choose Our Platform?</h2>
             <p className="text-gray-400 text-lg">Powered by cutting-edge AI to accelerate your learning journey</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
@@ -375,7 +454,7 @@ export default function GeneratePage() {
                 gradient: "from-cyan-400 to-blue-500"
               }
             ].map((feature, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-500 hover:transform hover:scale-105 group"
               >

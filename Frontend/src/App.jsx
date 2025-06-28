@@ -9,6 +9,9 @@ import PerformCRUDPage from './pages/PerformCRUDPage.jsx';
 import GeneratePage from './pages/GeneratePage.jsx'
 import Navbar from './components/Navbar.jsx'
 import UserDetails from './pages/UserDetails.jsx';
+import {Toaster} from "react-hot-toast";
+
+
 
 function App() {
   const { authUser, isCheckingAuth } = useFirebase();
@@ -34,6 +37,7 @@ function App() {
         <Route path="/ai" element={authUser ? <GeneratePage /> : <Navigate to="/" />} />
         <Route path="/userdetails" element={authUser ? <UserDetails /> : <Navigate to="/login" />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }
