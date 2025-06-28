@@ -17,6 +17,7 @@ const HomePage = () => {
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-y-auto w-[100%]">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob pointer-events-none"></div>
@@ -29,10 +30,19 @@ const HomePage = () => {
           backgroundSize: '40px 40px'
         }}></div>
       </div>
-      
+
+      <button
+                onClick={() => navigate('/ai')}
+                className="mt-10 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-purple-500/25 hover:scale-105 focus:outline-none transform transition duration-300 flex items-center gap-3 mx-auto group"
+              >
+                <Rocket className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                Get My Project Ideas
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              </button>
+
       <div className="relative z-10 px-4 py-8">
         {/* Hero Problem Statement - NEW */}
-        <div className="text-center mb-12 mt-8">
+        <div className="text-center mb-12 mt-0">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
               From Learning to Building
@@ -51,6 +61,8 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+
+
 
         {/* Main Features Section - ENHANCED */}
         <div className="mt-16 lg:mt-24">
@@ -253,26 +265,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Enhanced CTA Section */}
-        <div className="w-full flex justify-center mt-20">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-xl rounded-3xl p-12 border border-white/20 mb-8">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-white">Ready to Turn Learning into Building?</h2>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Stop letting great learning moments slip away. Get your personalized project suggestions in seconds.
-              </p>
-              
-              <button
-                onClick={() => navigate('/ai')}
-                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-purple-500/25 hover:scale-105 focus:outline-none transform transition duration-300 flex items-center gap-3 mx-auto group"
-              >
-                <Rocket className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                Get My Project Ideas
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </div>
-        </div>
+        
 
         <style jsx='true'>{`
           @keyframes blob {
@@ -295,6 +288,26 @@ const HomePage = () => {
           }
         `}</style>
       </div>
+      {/* Enhanced CTA Section */}
+        <div className="w-full flex justify-center mt-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-xl rounded-3xl p-12 border border-white/20 mb-8">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-white">Ready to Turn Learning into Building?</h2>
+              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Stop letting great learning moments slip away. Get your personalized project suggestions in seconds.
+              </p>
+              
+              <button
+                onClick={() => navigate('/ai')}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-purple-500/25 hover:scale-105 focus:outline-none transform transition duration-300 flex items-center gap-3 mx-auto group"
+              >
+                <Rocket className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                Get My Project Ideas
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
     </div>
   );
 };
