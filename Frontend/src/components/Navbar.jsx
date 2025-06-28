@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lightbulb } from 'lucide-react';
+import Logo from '../../public/logo.svg';
 import { useFirebase } from '../context/Firebase.jsx';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,14 +13,20 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo and Brand */}
           <div className="flex items-center gap-3 cursor-pointer group focus:outline-none" tabIndex={0} onClick={() => navigate('/')} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate('/'); }} aria-label="Go to Home">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-xl flex items-center justify-center group-hover:scale-105 transition">
-              <Lightbulb className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+            <div className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center group-hover:scale-105 transition">
+              <img src={Logo} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 object-contain" />
             </div>
-            <div className="flex flex-col">
-              <h1 className="text-lg lg:text-xl font-bold">
-                <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Spark</span>
-                <span className="text-white ml-1">Create</span>
-                <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent ml-1">Verse</span>
+            <div className="flex flex-col items-start">
+              <h1 className="text-lg lg:text-xl font-bold text-left">
+                <span
+                  className="bg-clip-text text-transparent text-left"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #22d3ee, #34d399, #3b82f6, #f472b6)',
+                  }}
+                >
+                  Svādhyāya
+
+                </span>
               </h1>
               <p className="text-xs text-gray-400 hidden sm:block">Where curiosity meets creation</p>
             </div>

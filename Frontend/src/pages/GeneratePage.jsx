@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Send, X, Loader, Mic, MicOff,Link, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket, Youtube } from 'lucide-react';
+import { Image, Send, X, Loader, Mic, MicOff, Link, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket, Youtube } from 'lucide-react';
 import toast from "react-hot-toast";
 import axios from 'axios';
 
@@ -248,7 +248,7 @@ export default function GeneratePage() {
                       {/* Voice Recording Button */}
                       <button
                         type="button"
-                        className=" absolute bottom-3 right-3 rounded-full "
+                        className=" absolute bottom-3 right-3 rounded-full m-0 p-2 focus:outline-none focus:border-none"
                         onClick={isRecording ? stopRecording : startRecording}
                       >
                         {isRecording ? <MicOff size={20} className="text-red-500" /> : <Mic size={20} />}
@@ -310,8 +310,8 @@ export default function GeneratePage() {
                   onClick={handleGenerate}
                   disabled={!canGenerate || isLoading}
                   className={`inline-flex items-center gap-3 px-12 py-4 lg:px-16 lg:py-5 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${canGenerate && !isLoading
-                      ? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-xl hover:shadow-cyan-500/25'
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-xl hover:shadow-cyan-500/25'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     }`}
                 >
                   {isLoading ? (
@@ -426,49 +426,6 @@ export default function GeneratePage() {
           </div>
         </div>
 
-        {/* Bottom Features Section */}
-        <div className="mt-16 lg:mt-24">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Why Choose Our Platform?</h2>
-            <p className="text-gray-400 text-lg">Powered by cutting-edge AI to accelerate your learning journey</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Star,
-                title: "Smart AI Suggestions",
-                description: "Advanced algorithms analyze your interests and skill level to suggest perfect projects",
-                gradient: "from-yellow-400 to-orange-500"
-              },
-              {
-                icon: Lightbulb,
-                title: "Comprehensive Guides",
-                description: "Step-by-step instructions, templates, and resources for every project level",
-                gradient: "from-purple-400 to-pink-500"
-              },
-              {
-                icon: Share,
-                title: "Multi-Domain Learning",
-                description: "Explore web development, AI/ML, mobile apps, data science, and much more",
-                gradient: "from-cyan-400 to-blue-500"
-              }
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-500 hover:transform hover:scale-105 group"
-              >
-                <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow`}>
-                  <feature.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4 text-center">{feature.title}</h3>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       <style jsx='true'>{`

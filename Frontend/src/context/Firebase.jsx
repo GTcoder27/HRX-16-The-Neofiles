@@ -114,7 +114,20 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
+  const create_user = async (email,fullname,experience="begineer") => {
+    let collectionName = "users"; 
+    let data = {
+        fullname:fullname,
+        experience:experience,
+    }
+    try {
+      await setDoc(doc(firestore, collectionName , email), data);
+      return { success: true, message: "Document written successfully." };
+    } catch (error) {
+      console.error("Error writing document:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
 
 
@@ -131,6 +144,7 @@ export const FirebaseProvider = (props) => {
         getData,
         updateData,
         deleteData,
+        create_user,
       }}
     >
       {props.children}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useFirebase } from "../context/Firebase";
 import toast from "react-hot-toast";
 import { useNavigate } from 'react-router-dom';
+import { doc } from "firebase/firestore";
 
 const SignupPage = () => {
 
@@ -22,10 +23,14 @@ const SignupPage = () => {
       });
   };
 
-  const handleSignupWithGoogle = () => {
+  const handleSignupWithGoogle = async () => {
     firebase.signupWithGoogle()
-      .then((userCredential) => {
-        console.log("Signup Successful!", userCredential);
+      .then(async (userCredential) => {
+        console.log("Signup Successful!", userCredential._tokenResponse);
+        let fullname = userCredential._tokenResponse.displayName;
+        let email = userCredential._tokenResponse.email;
+        let res = await firebase.create_user(email, fullname);        
+
         toast.success("Account Created successfully");
       }).catch((err) => {
         console.log(err);
