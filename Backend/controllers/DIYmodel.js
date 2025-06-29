@@ -93,8 +93,8 @@ Guidelines:
 - Use Markdown code blocks when embedding sample code.
 - Make projects achievable within the estimated timeframe.
 - Focus on learning reinforcement rather than recreation.
+- Depending on the User experience 
 `;
-
 
 
 
@@ -127,7 +127,8 @@ function extractJSON(text) {
 
 export const DIYmodel = async (req, res) => {
 
-    const { youtubelink, topic } = req.body;
+    const { youtubelink, topic, experience } = req.body;
+    // console.log("ex",experience);
     let youtube_transcript = '';
 
     if (youtubelink != '') {
@@ -154,7 +155,7 @@ export const DIYmodel = async (req, res) => {
     });
 
 
-    const userTopic = `${topic}, ${youtube_transcript}`;
+    const userTopic = `Topic : ${topic}, ${youtube_transcript} , Users Background ${experience}`;
 
     const chat = model.startChat({
         history: [

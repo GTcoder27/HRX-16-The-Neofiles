@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Star, Flame, Trophy, Eye, Plus, Users, GitBranch, FileText, Link, GitCommit, ArrowLeft, Clock, Target, CheckCircle, Circle } from 'lucide-react';
+import {
+  Play, Star, CheckCircle, Circle, ArrowLeft, Clock
+} from 'lucide-react';
 import { useFirebase } from '../context/Firebase.jsx';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 // Confetti component
 const Confetti = () => {
   const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500', '#9400D3'];
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {Array.from({ length: 50 }).map((_, i) => (
@@ -42,7 +44,8 @@ const Confetti = () => {
 export default function ProjectDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getAllDocuments, getData, putData } = useFirebase();
+  const { getData, putData, authUser } = useFirebase();
+
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -52,31 +55,27 @@ export default function ProjectDetailsPage() {
   const [rating, setRating] = useState(0);
   const [isRated, setIsRated] = useState(false);
   const [updatingTask, setUpdatingTask] = useState(false);
+  const [userRating, setUserRating] = useState(0);
 
-  // Generate tasks based on project tags
   const generateTasks = (projectData) => {
     if (!projectData || !projectData.tags) return [];
-    
     const baseTasks = [
       { id: 1, text: "Research and planning", completed: true },
       { id: 2, text: "Set up development environment", completed: true },
       { id: 3, text: "Create project structure", completed: true },
     ];
-
     const tagTasks = projectData.tags.map((tag, index) => ({
       id: index + 4,
       text: `Implement ${tag} functionality`,
-      completed: false
+      completed: false,
     }));
-
     const finalTasks = [
       ...baseTasks,
       ...tagTasks,
       { id: tagTasks.length + 4, text: "Testing and debugging", completed: false },
       { id: tagTasks.length + 5, text: "Documentation", completed: false },
-      { id: tagTasks.length + 6, text: "Deployment", completed: false }
+      { id: tagTasks.length + 6, text: "Deployment", completed: false },
     ];
-
     return finalTasks;
   };
 
@@ -84,118 +83,129 @@ export default function ProjectDetailsPage() {
 
   useEffect(() => {
     const fetchProject = async () => {
+      console.log('Fetching project with ID:', id);
+      if (!authUser?.uid) {
+        console.log('No auth user found');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const result = await getAllDocuments('user_carts');
-        if (result.success) {
-          let foundProject = null;
-          result.data.forEach(userCart => {
-            if (userCart.projects && Array.isArray(userCart.projects)) {
-              const projectFound = userCart.projects.find(p => p.id === parseInt(id));
-              if (projectFound) {
-                foundProject = projectFound;
-              }
-            }
+        console.log('Fetching user cart for email:', authUser.email);
+        const result = await getData('user_carts', authUser.email);
+        console.log('User cart result:', result);
+        const userCart = result.success ? result.data : null;
+
+        if (userCart && userCart.projects) {
+          console.log('Found projects in user cart:', userCart.projects);
+          const projectFound = userCart.projects.find(p => {
+            const match = p.id.toString() === id || p.id === parseInt(id);
+            console.log(`Checking project ID: ${p.id} (${typeof p.id}) against ${id} (${typeof id}):`, match);
+            return match;
           });
           
-          if (foundProject) {
-            setProject(foundProject);
-            // Set initial completed tasks based on progress
-            const totalTasks = generateTasks(foundProject).length;
-            const completedCount = Math.floor((foundProject.progress || 0) / 100 * totalTasks);
+          console.log('Found project:', projectFound);
+          if (projectFound) {
+            console.log('Setting project data:', projectFound);
+            setProject(projectFound);
+            const totalTasks = generateTasks(projectFound).length;
+            const completedCount = Math.floor((projectFound.progress || 0) / 100 * totalTasks);
             setCompletedTasks(Array.from({ length: completedCount }, (_, i) => i + 1));
+            
+            // Check if project already has a rating
+            if (projectFound.rating && typeof projectFound.rating === 'number' && projectFound.rating > 0) {
+              setRating(projectFound.rating);
+              setIsRated(true);
+              setShowGithubInput(false);
+            }
+            
+            console.log('Project data set, should render now');
           } else {
+            console.log('Project not found in user cart, navigating away');
             navigate('/allprojects');
           }
+        } else {
+          console.log('No projects found in user cart, navigating away');
+          navigate('/allprojects');
         }
       } catch (error) {
         console.error('Error fetching project:', error);
+        toast.error('Failed to load project');
         navigate('/allprojects');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProject();
-  }, [id, getAllDocuments, navigate]);
+    const fetchUserRating = async () => {
+      try {
+        // Get user's rating from their user document
+        const userResult = await getData('users', authUser.email);
+        if (userResult.success && userResult.data && userResult.data.rating) {
+          const ratingValue = parseFloat(userResult.data.rating) || 0;
+          setUserRating(ratingValue);
+        }
+      } catch (error) {
+        console.error('Error fetching user rating:', error);
+      }
+    };
+
+    if (authUser?.email) {
+      fetchProject();
+      fetchUserRating();
+    }
+  }, [id, authUser, getData, navigate]);
 
   const toggleTask = async (taskId) => {
-    if (updatingTask) return; // Prevent multiple simultaneous updates
-    
+    if (updatingTask || !authUser?.uid) return;
     setUpdatingTask(true);
-    
     try {
       const newCompletedTasks = completedTasks.includes(taskId)
         ? completedTasks.filter(id => id !== taskId)
         : [...completedTasks, taskId];
-      
-      // Update local state immediately for better UX
+
       setCompletedTasks(newCompletedTasks);
-      
-      // Calculate new progress
       const newProgress = Math.round((newCompletedTasks.length / tasks.length) * 100);
-      
-      // Find the user who owns this project
-      const result = await getAllDocuments('user_carts');
-      if (result.success) {
-        let projectOwner = null;
-        let userCart = null;
-        
-        result.data.forEach(userCartData => {
-          if (userCartData.projects && Array.isArray(userCartData.projects)) {
-            const projectFound = userCartData.projects.find(p => p.id === parseInt(id));
-            if (projectFound) {
-              projectOwner = userCartData.id; // This is the user's email
-              userCart = userCartData;
-            }
-          }
-        });
-        
-        if (projectOwner && userCart) {
-          // Update the specific project in the user's cart
-          const updatedProjects = userCart.projects.map(p => {
-            if (p.id === parseInt(id)) {
-              return {
-                ...p,
-                progress: newProgress,
-                completedTasks: newCompletedTasks.length,
-                totalTasks: tasks.length,
-                status: newProgress === 100 ? 'completed' : newProgress > 0 ? 'in_progress' : 'not_started'
-              };
-            }
-            return p;
-          });
-          
-          // Save updated projects to database
-          const updateResult = await putData('user_carts', projectOwner, {
-            ...userCart,
-            projects: updatedProjects,
-            lastUpdated: new Date().toISOString()
-          });
-          
-          if (updateResult.success) {
-            // Update local project state
-            setProject(prev => ({
-              ...prev,
-              progress: newProgress,
-              completedTasks: newCompletedTasks.length,
-              totalTasks: tasks.length,
-              status: newProgress === 100 ? 'completed' : newProgress > 0 ? 'in_progress' : 'not_started'
-            }));
-            
-            // Show success toast
-            const wasCompleted = completedTasks.includes(taskId);
-            toast.success(`Task ${wasCompleted ? 'unchecked' : 'completed'}! Progress: ${newProgress}%`);
-          } else {
-            // Revert local state if database update failed
-            setCompletedTasks(completedTasks);
-            console.error('Failed to update task in database');
-            toast.error('Failed to update task. Please try again.');
-          }
+      const result = await getData('user_carts', authUser.email);
+      const userCart = result.success ? result.data : null;
+
+      if (!userCart || !userCart.projects) throw new Error('User cart not found');
+
+      const updatedProjects = userCart.projects.map(p => {
+        if (p.id === parseInt(id)) {
+          return {
+            ...p,
+            progress: newProgress,
+            completedTasks: newCompletedTasks.length,
+            totalTasks: tasks.length,
+            status: newProgress === 100 ? 'completed' : newProgress > 0 ? 'in_progress' : 'not_started',
+          };
         }
+        return p;
+      });
+
+      const updateResult = await putData('user_carts', authUser.email, {
+        ...userCart,
+        projects: updatedProjects,
+        lastUpdated: new Date().toISOString(),
+      });
+
+      if (updateResult.success) {
+        setProject(prev => ({
+          ...prev,
+          progress: newProgress,
+          completedTasks: newCompletedTasks.length,
+          totalTasks: tasks.length,
+          status: newProgress === 100 ? 'completed' : newProgress > 0 ? 'in_progress' : 'not_started',
+        }));
+        const wasCompleted = completedTasks.includes(taskId);
+        toast.success(`Task ${wasCompleted ? 'unchecked' : 'completed'}! Progress: ${newProgress}%`);
+      } else {
+        setCompletedTasks(completedTasks); // rollback
+        throw new Error('Failed to update task in database');
       }
     } catch (error) {
-      // Revert local state if there was an error
-      setCompletedTasks(completedTasks);
+      setCompletedTasks(completedTasks); // rollback
       console.error('Error updating task:', error);
       toast.error('Error updating task. Please try again.');
     } finally {
@@ -214,13 +224,130 @@ export default function ProjectDetailsPage() {
     }
   }, [completedTasks.length, isRated, tasks.length]);
 
-  const handleGithubSubmit = (e) => {
+  const handleGithubSubmit = async (e) => {
     e.preventDefault();
     if (githubLink.trim()) {
-      const randomRating = Math.floor(Math.random() * 3) + 3;
-      setRating(randomRating);
-      setIsRated(true);
-      setShowGithubInput(false);
+      try {
+        console.log(project);
+        const response = await axios.post('http://localhost:3000/api/GITmodel', {
+          projectinfo: project,
+          githublink: githubLink
+        });
+        
+        console.log('GitHub evaluation response:', response.data.overall_score);
+    
+        const evaluatedRating = response.data.overall_score;
+        
+        // Update the project's rating
+        setRating(parseFloat(evaluatedRating) || 0);
+        setIsRated(true);
+        setShowGithubInput(false);
+        
+        // Save the rating to the project in the database
+        await saveProjectRating(parseFloat(evaluatedRating) || 0);
+        
+        // Update user's overall rating in the database
+        await updateUserRating(parseFloat(evaluatedRating) || 0);
+        
+        toast.success('Project evaluated successfully!');
+      } catch (error) {
+        console.error('Error evaluating GitHub project:', error);
+        
+        // Fallback to random rating if API fails
+        const fallbackRating = Math.floor(Math.random() * 3) + 3;
+        setRating(fallbackRating);
+        setIsRated(true);
+        setShowGithubInput(false);
+        
+        // Save the fallback rating to the project
+        await saveProjectRating(fallbackRating);
+        
+        // Update user's overall rating even with fallback
+        await updateUserRating(fallbackRating);
+        
+        toast.error('Failed to evaluate project, but you can still see your rating!');
+      }
+    }
+  };
+
+  const saveProjectRating = async (newRating) => {
+    try {
+      const result = await getData('user_carts', authUser.email);
+      const userCart = result.success ? result.data : null;
+
+      if (!userCart || !userCart.projects) throw new Error('User cart not found');
+
+      // Update the specific project in the user's cart with the rating
+      const updatedProjects = userCart.projects.map(p => {
+        if (p.id === parseInt(id)) {
+          return {
+            ...p,
+            rating: newRating,
+            githubLink: githubLink, // Save the GitHub link as well
+            evaluatedAt: new Date().toISOString()
+          };
+        }
+        return p;
+      });
+      
+      // Save updated projects to database
+      const updateResult = await putData('user_carts', authUser.email, {
+        ...userCart,
+        projects: updatedProjects,
+        lastUpdated: new Date().toISOString()
+      });
+      
+      if (updateResult.success) {
+        // Update local project state
+        setProject(prev => ({
+          ...prev,
+          rating: newRating,
+          githubLink: githubLink,
+          evaluatedAt: new Date().toISOString()
+        }));
+        console.log('Project rating saved successfully');
+      } else {
+        console.error('Failed to save project rating');
+      }
+    } catch (error) {
+      console.error('Error saving project rating:', error);
+    }
+  };
+
+  const updateUserRating = async (newProjectRating) => {
+    try {
+      // Get current user data
+      const userResult = await getData('users', authUser.email);
+      let currentUserData = {};
+      
+      if (userResult.success && userResult.data) {
+        currentUserData = userResult.data;
+      }
+      
+      // Calculate new overall rating
+      const currentRating = currentUserData.rating || 0;
+      const totalProjects = currentUserData.totalProjects || 0;
+      const newTotalProjects = totalProjects + 1;
+      
+      // Calculate weighted average (you can adjust this formula)
+      const newOverallRating = ((currentRating * totalProjects) + newProjectRating) / newTotalProjects;
+      
+      // Update user document with new rating
+      const updateResult = await putData('users', authUser.email, {
+        ...currentUserData,
+        rating: Math.round(newOverallRating * 10) / 10, // Round to 1 decimal place
+        totalProjects: newTotalProjects,
+        lastUpdated: new Date().toISOString()
+      });
+      
+      if (updateResult.success) {
+        setUserRating(Math.round(newOverallRating * 10) / 10);
+        console.log('User rating updated successfully');
+      } else {
+        console.error('Failed to update user rating');
+      }
+    } catch (error) {
+      console.error('Error updating user rating:', error);
     }
   };
 
@@ -279,12 +406,16 @@ export default function ProjectDetailsPage() {
     }
   };
 
+  const progress = (completedTasks.length / tasks.length) * 100;
+  const statusConfig = getStatusConfig(project?.status);
+  const difficultyConfig = getDifficultyConfig(project?.difficulty);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-400">Loading project details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <p>Loading project details...</p>
         </div>
       </div>
     );
@@ -292,17 +423,21 @@ export default function ProjectDetailsPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-white">
         <div className="text-center">
-          <p className="text-slate-400">Project not found</p>
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-2">Project Not Found</h2>
+          <p className="text-slate-400 mb-4">The project you're looking for doesn't exist or you don't have permission to view it.</p>
+          <button 
+            onClick={() => navigate('/allprojects')}
+            className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors"
+          >
+            Back to Projects
+          </button>
         </div>
       </div>
     );
   }
-
-  const difficultyConfig = getDifficultyConfig(project.difficulty);
-  const statusConfig = getStatusConfig(project.status);
-  const progress = (completedTasks.length / tasks.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-6 relative overflow-y-auto w-full">
@@ -359,7 +494,9 @@ export default function ProjectDetailsPage() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
               <Star className="w-5 h-5 text-yellow-400" />
-              <span className="text-yellow-300 font-medium">{Math.floor(Math.random() * 5000)} XP</span>
+              <span className="text-yellow-300 font-medium">
+                {typeof userRating === 'number' ? userRating.toFixed(1) : '0.0'} Rating
+              </span>
             </div>
           </div>
         </div>
@@ -470,24 +607,43 @@ export default function ProjectDetailsPage() {
               <div className="flex-1 flex flex-col justify-center">
                 {isRated ? (
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-yellow-400 mb-2">{rating.toFixed(1)}</div>
+                    <div className="text-4xl font-bold text-yellow-400 mb-2">
+                      {typeof rating === 'number' ? rating.toFixed(1) : '0.0'}
+                    </div>
                     <div className="flex justify-center space-x-1 mb-2">
                       {[1, 2, 3, 4, 5].map(i => (
                         <Star
                           key={i}
-                          className={`w-5 h-5 ${i <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`}
+                          className={`w-5 h-5 ${i <= (typeof rating === 'number' ? rating : 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`}
                         />
                       ))}
                     </div>
-                    <p className="text-gray-300 text-sm">
-                      {rating >= 4.5
+                    <p className="text-gray-300 text-sm mb-3">
+                      {(typeof rating === 'number' ? rating : 0) >= 4.5
                         ? 'Outstanding work! Your project is exceptional! 🎉'
-                        : rating >= 4
+                        : (typeof rating === 'number' ? rating : 0) >= 4
                           ? 'Great job! Your project is well done! 👏'
-                          : rating >= 3
+                          : (typeof rating === 'number' ? rating : 0) >= 3
                             ? 'Good work! Keep it up! 👍'
                             : 'Thanks for submitting! Keep improving! 💪'}
                     </p>
+                    
+                    {/* Show GitHub link if available */}
+                    {project.githubLink && (
+                      <div className="mb-3 p-2 bg-gray-700/30 rounded-lg">
+                        <p className="text-xs text-gray-400 mb-1">GitHub Repository</p>
+                        <a 
+                          href={project.githubLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 text-sm break-all"
+                        >
+                          {project.githubLink}
+                        </a>
+                      </div>
+                    )}
+                    
+      
                   </div>
                 ) : showGithubInput ? (
                   <form onSubmit={handleGithubSubmit} className="space-y-3">
@@ -520,7 +676,11 @@ export default function ProjectDetailsPage() {
                         <Star key={i} className="w-5 h-5 text-gray-600" />
                       ))}
                     </div>
-                    <p className="text-gray-400 text-sm">Complete all tasks to get rated</p>
+                    <p className="text-gray-400 text-sm mb-3">Complete all tasks to get rated</p>
+                    <div className="border-t border-yellow-400/20 pt-3">
+                      <p className="text-xs text-gray-400">Your Overall Rating</p>
+                      <p className="text-lg font-semibold text-yellow-300">{userRating.toFixed(1)}</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -549,4 +709,4 @@ export default function ProjectDetailsPage() {
       </div>
     </div>
   );
-} 
+}

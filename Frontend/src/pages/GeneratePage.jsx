@@ -72,7 +72,7 @@ const ProjectCard = ({ project, index }) => {
 
   const handleAddToCart = async () => {
     if (!authUser) {
-      setError('Please login to add projects to cart');
+      toast.error('Please login to add projects to cart');
       return;
     }
 
@@ -86,31 +86,32 @@ const ProjectCard = ({ project, index }) => {
       const existingCartResult = await getData('user_carts', authUser.email);
       
       let existingProjects = [];
-      if (existingCartResult.success && existingCartResult.data && existingCartResult.data.projects) {
+      if (existingCartResult && existingCartResult.data && existingCartResult.data.projects) {
         existingProjects = existingCartResult.data.projects;
       }
 
       // Check if project already exists
-      const projectExists = existingProjects.find(p => p.id === project.id);
+      const projectExists = existingProjects.some(p => p.title === project.title);
       if (projectExists) {
-        setError('Project already in your cart!');
+        toast.error('Project already in your cart!');
+        setIsInCart(true);
         setIsAdding(false);
         return;
       }
 
       const cartItem = {
-        id: project.id,
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate unique ID
         title: project.title,
         category: project.category,
         difficulty: project.difficulty,
-        duration: project.estimatedTime,
+        estimatedTime: project.estimatedTime,
         description: project.description,
-        tags: project.tags,
+        tags: project.tags || [],
         addedAt: new Date().toISOString(),
         userEmail: authUser.email,
         progress: 0,
         status: 'not_started',
-        totalTasks: project.tags ? project.tags.length + 2 : 5, // Estimate based on tags
+        totalTasks: project.tags ? project.tags.length + 2 : 5,
         completedTasks: 0
       };
 
@@ -123,13 +124,15 @@ const ProjectCard = ({ project, index }) => {
         userEmail: authUser.email
       });
 
-      if (result.success) {
+      if (result && result.success) {
         setIsInCart(true);
+        toast.success('Project added successfully!');
       } else {
-        setError('Failed to add to cart. Please try again.');
+        throw new Error('Failed to save to cart');
       }
     } catch (error) {
-      setError('Failed to add to cart. Please try again.');
+      console.error('Add to cart error:', error);
+      toast.error(error.message || 'Failed to add to cart. Please try again.');
     } finally {
       setIsAdding(false);
     }

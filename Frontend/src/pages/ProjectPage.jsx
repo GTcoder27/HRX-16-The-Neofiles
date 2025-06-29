@@ -178,7 +178,7 @@ export default function ProjectPage() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
               <Star className="w-5 h-5 text-yellow-400" />
-              <span className="text-yellow-300 font-medium">2,847 XP</span>
+              <span className="text-yellow-300 font-medium">2000 XP</span>
             </div>
           </div>
         </div>

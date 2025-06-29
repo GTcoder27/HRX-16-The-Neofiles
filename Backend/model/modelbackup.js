@@ -137,7 +137,7 @@ export const DIYmodel = async (req,res) => {
         const result = await chat.sendMessage(userTopic);
         const response = result.response;
         const json = extractJSON(response.text());
-        console.log(json);
+        // console.log(json);
         console.log("✅ Successfully received and parsed project idea:");
         res.send(json);
 

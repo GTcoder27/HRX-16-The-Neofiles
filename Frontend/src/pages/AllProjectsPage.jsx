@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useFirebase } from '../context/Firebase.jsx';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Heart, Clock, Target, Eye, Star, Search, Filter, Grid, List,
+  Heart, Clock, Target, Star, Search, Filter, Grid, List,
   Play, CheckCircle, BarChart3, Loader, Lightbulb, Zap, Code, Smartphone, 
-  Database, Globe, Palette, ChevronDown, X, SlidersHorizontal, Clock3, Circle, User, Award, Plus, ExternalLink
+  Database, Globe, Palette, ChevronDown, X, SlidersHorizontal, Clock3, Circle, User, Award, Plus, ExternalLink,
+  Flame, Trophy, Users as UsersIcon, GitBranch, FileText, GitCommit, ArrowLeft
 } from 'lucide-react';
 
 const ProjectCard = ({ project, onProgressClick, isUpdating }) => {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
 
   const getDifficultyConfig = (difficulty) => {
     switch (difficulty) {
@@ -103,8 +102,26 @@ const ProjectCard = ({ project, onProgressClick, isUpdating }) => {
     return email ? email.split('@')[0].replace(/\./g, ' ') : 'Unknown';
   };
 
+  const handleCardClick = (e) => {
+    // Prevent navigation if clicking on a button or link inside the card
+    if (e.target.closest('button, a')) {
+      return;
+    }
+    // Navigate to the project details page
+    navigate(`/project/${project.id}`);
+  };
+
   return (
-    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/50 via-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/10">
+    <motion.div 
+      onClick={handleCardClick}
+      className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/70 via-slate-800/70 to-slate-900/70 backdrop-blur-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/10 cursor-pointer"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleCardClick(e)}
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
       <div className="relative z-10 p-6">
@@ -127,29 +144,11 @@ const ProjectCard = ({ project, onProgressClick, isUpdating }) => {
                   {statusConfig.label}
                 </span>
               </div>
-              <p className="text-slate-400 text-sm">{project.category}</p>
+              <p className="text-slate-400 text-sm text-left">{project.category}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button
-              onClick={() => setIsLiked(!isLiked)}
-              className={`p-2 rounded-xl border transition-all duration-200 ${isLiked
-                ? 'bg-red-500/20 border-red-500/30 text-red-400'
-                : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-red-400'
-                }`}
-            >
-              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-            </button>
-            <button
-              onClick={() => setIsBookmarked(!isBookmarked)}
-              className={`p-2 rounded-xl border transition-all duration-200 ${isBookmarked
-                ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'
-                : 'bg-slate-800/50 border-slate-600/30 text-slate-400 hover:text-yellow-400'
-                }`}
-            >
-              <Star className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
-            </button>
           </div>
         </div>
 
@@ -202,37 +201,11 @@ const ProjectCard = ({ project, onProgressClick, isUpdating }) => {
 
         {/* Stats */}
         <div className="flex gap-3 mb-4">
-          <div className="flex items-center gap-2 p-2 bg-slate-800/30 rounded-lg border border-slate-700/30 flex-1">
+          <div className="flex items-center gap-2 p-2 bg-slate-800/30 rounded-lg border border-slate-700/30 w-fit">
             <Clock className="w-4 h-4 text-green-400" />
             <span className="text-white text-sm font-medium">{project.duration}</span>
           </div>
-          <div className="flex items-center gap-2 p-2 bg-slate-800/30 rounded-lg border border-slate-700/30">
-            <User className="w-4 h-4 text-purple-400" />
-            <span className="text-white text-sm font-medium">{getUserDisplayName(project.userEmail)}</span>
-          </div>
-          <button
-            onClick={() => setShowPreview(!showPreview)}
-            className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-lg border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
         </div>
-
-        {/* Preview */}
-        {showPreview && project.description && (
-          <div className="mb-4 p-3 bg-slate-800/40 rounded-xl border border-slate-700/30">
-            <h4 className="text-white font-semibold mb-2 flex items-center gap-2 text-sm">
-              <Lightbulb className="w-4 h-4 text-yellow-400" />
-              Project Details
-            </h4>
-            <div className="space-y-1 text-xs text-slate-300">
-              <p>• Category: {project.category}</p>
-              <p>• Difficulty: {project.difficulty}</p>
-              <p>• Duration: {project.duration}</p>
-              <p>• Created by: {getUserDisplayName(project.userEmail)}</p>
-            </div>
-          </div>
-        )}
 
         {/* Action Button */}
         <div className="flex gap-2">
@@ -244,50 +217,65 @@ const ProjectCard = ({ project, onProgressClick, isUpdating }) => {
             Details
           </button>
           
-          <button
-            onClick={() => onProgressClick(project)}
-            disabled={isUpdating}
-            className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-sm ${
-              project.status === 'completed'
-                ? 'bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30'
-                : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-400/50 hover:text-cyan-300 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-95'
-            }`}
-          >
-            {isUpdating ? (
-              <>
-                <Loader className="w-4 h-4 animate-spin" />
-                Loading...
-              </>
-            ) : project.status === 'completed' ? (
-              <>
-                <Award className="w-4 h-4" />
-                View Project
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Add to My Projects
-              </>
-            )}
-          </button>
+
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const AllProjectsPage = () => {
   const { authUser, getData, putData, getAllDocuments } = useFirebase();
   const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    difficulty: [],
+    category: [],
+    status: []
+  });
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [updatingProject, setUpdatingProject] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+  const firebase = useFirebase();
+  const navigate = useNavigate();
+
+  // Confetti effect state
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Confetti component
+  const Confetti = () => {
+    const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500', '#9400D3'];
+  
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 50 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+              left: `${Math.random() * 100}%`,
+              top: '-10px',
+            }}
+            initial={{ y: 0, opacity: 1, rotate: 0 }}
+            animate={{
+              y: '100vh',
+              opacity: 0,
+              rotate: 360,
+              x: Math.random() * 200 - 100,
+            }}
+            transition={{
+              duration: Math.random() * 2 + 2,
+              repeat: Infinity,
+              ease: 'linear',
+              delay: Math.random() * 5,
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
 
   const categories = ['All', 'AI/ML', 'Full Stack', 'Mobile', 'Data Science', 'Web Development', 'Blockchain'];
   const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -300,7 +288,6 @@ const AllProjectsPage = () => {
       if (!authUser?.email) {
         setLoading(false);
         setProjects([]);
-        setFilteredProjects([]);
         return;
       }
 
@@ -310,16 +297,13 @@ const AllProjectsPage = () => {
         
         if (result.success && result.data && result.data.projects) {
           setProjects(result.data.projects);
-          setFilteredProjects(result.data.projects);
         } else {
           // No projects found for user
           setProjects([]);
-          setFilteredProjects([]);
         }
       } catch (error) {
         console.error('Error loading projects:', error);
         setProjects([]);
-        setFilteredProjects([]);
       } finally {
         setLoading(false);
       }
@@ -332,35 +316,40 @@ const AllProjectsPage = () => {
   useEffect(() => {
     let filtered = projects;
 
-    if (searchTerm) {
+    if (searchQuery) {
       filtered = filtered.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.tags || []).some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        project.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.category?.toLowerCase().includes(searchTerm.toLowerCase())
+        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (project.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        project.userEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.category?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(project => project.category === selectedCategory);
+    if (filters.difficulty.length > 0) {
+      filtered = filtered.filter(project => filters.difficulty.includes(project.difficulty));
     }
 
-    if (selectedDifficulty !== 'All') {
-      filtered = filtered.filter(project => project.difficulty === selectedDifficulty);
+    if (filters.category.length > 0) {
+      filtered = filtered.filter(project => filters.category.includes(project.category));
     }
 
-    if (selectedStatus !== 'All') {
-      const statusMap = {
-        'Not Started': 'not_started',
-        'In Progress': 'in_progress',
-        'Completed': 'completed'
-      };
-      filtered = filtered.filter(project => project.status === statusMap[selectedStatus]);
+    if (filters.status.length > 0) {
+      filtered = filtered.filter(project => filters.status.includes(project.status));
     }
 
-    setFilteredProjects(filtered);
-  }, [projects, searchTerm, selectedCategory, selectedDifficulty, selectedStatus]);
+    // Sort projects
+    if (sortBy === 'newest') {
+      filtered.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+    } else if (sortBy === 'oldest') {
+      filtered.sort((a, b) => new Date(a.addedAt) - new Date(b.addedAt));
+    } else if (sortBy === 'alphabetical') {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    // Update projects state
+    setProjects(filtered);
+  }, [projects, searchQuery, filters, sortBy]);
 
   const handleProgressClick = async (project) => {
     if (!authUser?.email) {
@@ -368,8 +357,6 @@ const AllProjectsPage = () => {
       return;
     }
 
-    setUpdatingProject(project.id);
-    
     try {
       // Get user's existing cart
       const userCartResult = await getData('user_carts', authUser.email);
@@ -383,7 +370,6 @@ const AllProjectsPage = () => {
       const existingProject = userProjects.find(p => p.id === project.id);
       if (existingProject) {
         alert('Project already in your cart!');
-        setUpdatingProject(null);
         return;
       }
 
@@ -405,22 +391,24 @@ const AllProjectsPage = () => {
 
       if (updateResult.success) {
         alert(`"${project.title}" added to your projects!`);
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
       } else {
         alert('Failed to add project. Please try again.');
       }
     } catch (error) {
       console.error('Error adding project:', error);
       alert('Failed to add project. Please try again.');
-    } finally {
-      setUpdatingProject(null);
     }
   };
 
   const clearFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('All');
-    setSelectedDifficulty('All');
-    setSelectedStatus('All');
+    setSearchQuery('');
+    setFilters({
+      difficulty: [],
+      category: [],
+      status: []
+    });
   };
 
   const getProjectStats = () => {
@@ -436,7 +424,7 @@ const AllProjectsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center z-50">
         <div className="text-center">
           <Loader className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
           <p className="text-slate-400">Loading your projects...</p>
@@ -446,61 +434,85 @@ const AllProjectsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white overflow-x-hidden">
+      <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-stripes.png')] opacity-5 -z-10"></div>
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 pointer-events-none"
+          >
+            <Confetti />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
-      <div className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-40 px-4 md:px-8 py-6">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                My Projects
+              <h1 className=" text-left pb-2 text-3xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+                All Projects
               </h1>
-              <p className="text-slate-400">
-                View and manage your personal project collection
-              </p>
+              <p className="text-slate-400 mt-2 text-lg">Browse and manage your learning journey</p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <motion.div 
+                className="relative flex-1 md:min-w-[300px]"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Search projects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 w-80"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-800/70 backdrop-blur-sm border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-transparent text-white placeholder-slate-500 transition-all duration-300"
                 />
-              </div>
+              </motion.div>
 
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="p-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all duration-300"
+              
+
+              <motion.div 
+                className="flex border border-slate-700/50 rounded-xl overflow-hidden bg-slate-800/70 backdrop-blur-sm"
+                whileHover={{ scale: 1.02 }}
               >
-                <SlidersHorizontal className="w-5 h-5" />
-              </button>
-
-              <div className="flex bg-slate-800/50 border border-slate-600/50 rounded-xl p-1">
-                <button
+                <motion.button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-all duration-300 ${viewMode === 'grid' 
-                    ? 'bg-cyan-500/20 text-cyan-400' 
-                    : 'text-slate-400 hover:text-white'
+                  className={`p-3 transition-all ${
+                    viewMode === 'grid' 
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400' 
+                      : 'bg-transparent text-slate-400 hover:bg-slate-700/50'
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <Grid className="w-5 h-5" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-all duration-300 ${viewMode === 'list' 
-                    ? 'bg-cyan-500/20 text-cyan-400' 
-                    : 'text-slate-400 hover:text-white'
+                  className={`p-3 transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400' 
+                      : 'bg-transparent text-slate-400 hover:bg-slate-700/50'
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <List className="w-5 h-5" />
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
@@ -553,66 +565,196 @@ const AllProjectsPage = () => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Filters */}
-        {showFilters && (
-          <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-8 backdrop-blur-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-white">Filters</h3>
-              <button onClick={clearFilters} className="text-sm text-cyan-400 hover:text-cyan-300 flex items-center gap-2">
-                <X className="w-4 h-4" />
-                Clear Filters
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Category Filter */}
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Category</label>
-                <div className="relative">
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 appearance-none"
-                  >
-                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 relative z-10">
+        {/* Filter Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div 
+              className="mb-8 p-6 bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl shadow-slate-900/30"
+              initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Filters</h3>
+                <motion.button
+                  onClick={() => setShowFilters(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all"
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                    Difficulty
+                  </h4>
+                  <div className="space-y-3">
+                    {['Beginner', 'Intermediate', 'Advanced'].map((level) => {
+                      const isActive = filters.difficulty.includes(level);
+                      return (
+                        <motion.div 
+                          key={level}
+                          className={`flex items-center p-2 rounded-xl transition-all cursor-pointer ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30' 
+                              : 'hover:bg-slate-700/50 border border-transparent'
+                          }`}
+                          onClick={() =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              difficulty: prev.difficulty.includes(level)
+                                ? prev.difficulty.filter((d) => d !== level)
+                                : [...prev.difficulty, level],
+                            }))
+                          }
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 ${
+                            isActive 
+                              ? 'bg-cyan-500/20 border-cyan-500/50' 
+                              : 'border-slate-600 bg-slate-700/50'
+                          }`}>
+                            {isActive && <CheckCircle className="w-3 h-3 text-cyan-400" />}
+                          </div>
+                          <span className="text-slate-300">{level}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <Code className="w-4 h-4 text-blue-400" />
+                    Category
+                  </h4>
+                  <div className="space-y-3">
+                    {['Web Development', 'Mobile', 'AI/ML', 'Data Science', 'Blockchain', 'Full Stack'].map((category) => {
+                      const isActive = filters.category.includes(category);
+                      return (
+                        <motion.div 
+                          key={category}
+                          className={`flex items-center p-2 rounded-xl transition-all cursor-pointer ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30' 
+                              : 'hover:bg-slate-700/50 border border-transparent'
+                          }`}
+                          onClick={() =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              category: prev.category.includes(category)
+                                ? prev.category.filter((c) => c !== category)
+                                : [...prev.category, category],
+                            }))
+                          }
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 ${
+                            isActive 
+                              ? 'bg-cyan-500/20 border-cyan-500/50' 
+                              : 'border-slate-600 bg-slate-700/50'
+                          }`}>
+                            {isActive && <CheckCircle className="w-3 h-3 text-cyan-400" />}
+                          </div>
+                          <span className="text-slate-300">{category}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-yellow-400" />
+                    Status
+                  </h4>
+                  <div className="space-y-3">
+                    {['Not Started', 'In Progress', 'Completed'].map((status) => {
+                      const isActive = filters.status.includes(status);
+                      return (
+                        <motion.div 
+                          key={status}
+                          className={`flex items-center p-2 rounded-xl transition-all cursor-pointer ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30' 
+                              : 'hover:bg-slate-700/50 border border-transparent'
+                          }`}
+                          onClick={() =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              status: prev.status.includes(status)
+                                ? prev.status.filter((s) => s !== status)
+                                : [...prev.status, status],
+                            }))
+                          }
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 ${
+                            isActive 
+                              ? 'bg-cyan-500/20 border-cyan-500/50' 
+                              : 'border-slate-600 bg-slate-700/50'
+                          }`}>
+                            {isActive && <CheckCircle className="w-3 h-3 text-cyan-400" />}
+                          </div>
+                          <span className="text-slate-300">{status}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-              {/* Difficulty Filter */}
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Difficulty</label>
-                <div className="relative">
-                  <select
-                    value={selectedDifficulty}
-                    onChange={(e) => setSelectedDifficulty(e.target.value)}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 appearance-none"
+
+              <div className="mt-8 pt-6 border-t border-slate-700/50 flex justify-between items-center">
+                <motion.button
+                  onClick={() =>
+                    setFilters({
+                      difficulty: [],
+                      category: [],
+                      status: []
+                    })
+                  }
+                  className="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white transition-all rounded-xl hover:bg-slate-700/50 border border-slate-700/50 flex items-center gap-2"
+                  whileHover={{ x: -3 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <X className="w-4 h-4" />
+                  Clear All Filters
+                </motion.button>
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={() => setShowFilters(false)}
+                    className="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white transition-all rounded-xl hover:bg-slate-700/50 border border-slate-700/50"
+                    whileHover={{ x: -3 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {difficulties.map(diff => <option key={diff} value={diff}>{diff}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowFilters(false)}
+                    className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2"
+                    whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)' }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Apply Filters
+                  </motion.button>
                 </div>
               </div>
-              {/* Status Filter */}
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Status</label>
-                <div className="relative">
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 appearance-none"
-                  >
-                    {statuses.map(stat => <option key={stat} value={stat}>{stat}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Projects Grid/List */}
-        {filteredProjects.length > 0 ? (
+        {projects.length > 0 ? (
           <div
             className={
               viewMode === 'grid'
@@ -620,12 +762,11 @@ const AllProjectsPage = () => {
                 : 'flex flex-col gap-6'
             }
           >
-            {filteredProjects.map((project) => (
+            {projects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 onProgressClick={handleProgressClick}
-                isUpdating={updatingProject === project.id}
               />
             ))}
           </div>
@@ -633,13 +774,10 @@ const AllProjectsPage = () => {
           <div className="text-center py-20">
             <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-white mb-2">
-              {projects.length === 0 ? 'No Projects Available' : 'No Projects Found'}
+              No Projects Found
             </h3>
             <p className="text-slate-400">
-              {projects.length === 0 
-                ? 'No projects have been added to the community yet. Be the first to add a project!'
-                : 'Try adjusting your search or filters.'
-              }
+              Try adjusting your search or filters.
             </p>
           </div>
         )}
