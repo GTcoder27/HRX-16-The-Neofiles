@@ -11,6 +11,8 @@ import Navbar from './components/Navbar.jsx'
 import ProfilePage from './pages/ProfilePage.jsx';
 import {Toaster} from "react-hot-toast";
 import ProjectPage from './pages/ProjectPage.jsx';
+import AllProjectsPage from './pages/AllProjectsPage.jsx'
+import ProjectDetailsPage from './pages/ProjectDetailsPage.jsx'
 
 
 
@@ -38,6 +40,8 @@ function App() {
         <Route path="/ai" element={authUser ? <GeneratePage /> : <Navigate to="/" />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
         <Route path="/project" element={authUser ? <ProjectPage /> : <Navigate to="/login" />} />
+        <Route path="/project/:id" element={authUser ? <ProjectDetailsPage /> : <Navigate to="/login" />} />
+        <Route path="/allprojects" element={authUser ? <AllProjectsPage /> : <Navigate to="/login" />} />
       </Routes>
       <Toaster />
     </div>

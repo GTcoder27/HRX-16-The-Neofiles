@@ -32,7 +32,7 @@ export default function Header() {
     <header className="w-full bg-slate-900 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          
+
           {/* Logo and Brand */}
           <div
             className="flex items-center gap-3 cursor-pointer group focus:outline-none"
@@ -61,12 +61,25 @@ export default function Header() {
             </div>
           </div>
 
+
+
+
           {/* Right Side: Authenticated User Dropdown */}
           {authUser && (
             <div className="flex items-center gap-3 lg:gap-4">
+              {/* All Projects */}
+              <button
+                className="flex items-center  cursor-pointer group focus:outline-none"
+                tabIndex={0}
+                onClick={() => navigate('/allprojects')}
+              >
+                show all projects
+              </button>
+
+
               <div className="relative flex items-center" ref={menuRef}>
                 <button
-                  className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg focus:outline-none"
+                  className="w-10 h-10 rounded-full flex items-center bg-white justify-center text-black font-bold text-lg shadow-lg focus:outline-none"
                   onClick={() => setOpen((v) => !v)}
                 >
                   {initial}
@@ -77,7 +90,7 @@ export default function Header() {
                     <div className="mb-2">
                       <button
                         type="button"
-                        className="w-full flex justify-center items-center px-4 py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold hover:bg-gradient-to-r hover:from-cyan-500 hover:to-purple-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+                        className="w-full flex justify-center items-center px-4 py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold  hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
                         onClick={() => {
                           navigate('/profile');
                           setOpen(false);

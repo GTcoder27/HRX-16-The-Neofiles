@@ -1,14 +1,24 @@
-import React, { useState , useRef} from 'react';
+import React, { useState, useRef } from 'react';
+import { useFirebase } from '../context/Firebase.jsx';
 import {
   Heart, Clock, Target, Mic, Youtube, Link, MicOff, Play, ArrowRight, Eye, Share2, Trophy, ChevronRight,
-  GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket
+  GitBranch, Database, Globe, Smartphone, Loader, Lightbulb, Upload, Sparkles, Star, Share, Zap, Code, Palette, Rocket,
+  ShoppingCart, Check
 } from 'lucide-react';
 import toast from "react-hot-toast";
 import axios from 'axios';
+
+
+
 const ProjectCard = ({ project, index }) => {
+  const { authUser, putData, getData } = useFirebase();
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [isInCart, setIsInCart] = useState(false);
+  const [error, setError] = useState('');
 
   const getDifficultyConfig = (difficulty) => {
     switch (difficulty) {
@@ -59,6 +69,72 @@ const ProjectCard = ({ project, index }) => {
   const difficultyConfig = getDifficultyConfig(project.difficulty);
   const categoryConfig = getCategoryConfig(project.category);
   const hasQuickPreview = Array.isArray(project['quick-preview']) && project['quick-preview'].length > 0;
+
+  const handleAddToCart = async () => {
+    if (!authUser) {
+      setError('Please login to add projects to cart');
+      return;
+    }
+
+    if (isAdding || isInCart) return;
+
+    setIsAdding(true);
+    setError('');
+
+    try {
+      // First, get existing projects from user's cart
+      const existingCartResult = await getData('user_carts', authUser.email);
+      
+      let existingProjects = [];
+      if (existingCartResult.success && existingCartResult.data && existingCartResult.data.projects) {
+        existingProjects = existingCartResult.data.projects;
+      }
+
+      // Check if project already exists
+      const projectExists = existingProjects.find(p => p.id === project.id);
+      if (projectExists) {
+        setError('Project already in your cart!');
+        setIsAdding(false);
+        return;
+      }
+
+      const cartItem = {
+        id: project.id,
+        title: project.title,
+        category: project.category,
+        difficulty: project.difficulty,
+        duration: project.estimatedTime,
+        description: project.description,
+        tags: project.tags,
+        addedAt: new Date().toISOString(),
+        userEmail: authUser.email,
+        progress: 0,
+        status: 'not_started',
+        totalTasks: project.tags ? project.tags.length + 2 : 5, // Estimate based on tags
+        completedTasks: 0
+      };
+
+      // Add new project to existing projects
+      const updatedProjects = [...existingProjects, cartItem];
+
+      const result = await putData('user_carts', authUser.email, {
+        projects: updatedProjects,
+        lastUpdated: new Date().toISOString(),
+        userEmail: authUser.email
+      });
+
+      if (result.success) {
+        setIsInCart(true);
+      } else {
+        setError('Failed to add to cart. Please try again.');
+      }
+    } catch (error) {
+      setError('Failed to add to cart. Please try again.');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
 
   return (
     <div
@@ -178,6 +254,37 @@ const ProjectCard = ({ project, index }) => {
           >
             <Eye className="w-5 h-5 group-hover/preview:scale-110 transition-transform" />
           </button>
+
+          {/* Add to Cart Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleAddToCart}
+              disabled={isInCart || isAdding}
+              className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${isInCart
+                ? 'bg-green-500/20 border border-green-500/30 text-green-400 cursor-default'
+                : isAdding
+                  ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 cursor-wait'
+                  : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-400/50 hover:text-cyan-300 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-98'
+                }`}
+            >
+              {isInCart ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  Added to Projects
+                </>
+              ) : isAdding ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5" />
+                  Add to Projects
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Preview section */}
@@ -258,7 +365,7 @@ export default function GeneratePage() {
         setProjects(formattedProjects);
         setTimeout(() => {
           projectSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100); 
+        }, 100);
 
         console.log(projects);
       }

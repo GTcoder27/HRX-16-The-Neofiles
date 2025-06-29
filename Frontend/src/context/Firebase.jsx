@@ -7,7 +7,8 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
-
+  collection,
+  getDocs,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -114,8 +115,20 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
-
+  // GET ALL DOCUMENTS FROM COLLECTION
+  const getAllDocuments = async (collectionName) => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, collectionName));
+      const documents = [];
+      querySnapshot.forEach((doc) => {
+        documents.push({ id: doc.id, ...doc.data() });
+      });
+      return { success: true, data: documents };
+    } catch (error) {
+      console.error("Error getting documents:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
   const create_user = async (email,fullname) => {
     let collectionName = "users"; 
@@ -168,6 +181,7 @@ export const FirebaseProvider = (props) => {
         getData,
         updateData,
         deleteData,
+        getAllDocuments,
         create_user,
         update_user,
 
