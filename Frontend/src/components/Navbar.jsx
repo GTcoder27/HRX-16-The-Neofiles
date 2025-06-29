@@ -69,11 +69,14 @@ export default function Header() {
             <div className="flex items-center gap-3 lg:gap-4">
               {/* All Projects */}
               <button
-                className="flex items-center  cursor-pointer group focus:outline-none"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white cursor-pointer group focus:outline-none 
+           hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-blue-200 
+           hover:shadow-lg transition-all duration-500"
+
                 tabIndex={0}
                 onClick={() => navigate('/allprojects')}
               >
-                show all projects
+                My Projects
               </button>
 
 
@@ -90,7 +93,9 @@ export default function Header() {
                     <div className="mb-2">
                       <button
                         type="button"
-                        className="w-full flex justify-center items-center px-4 py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold  hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+                        className="w-full flex justify-center items-center px-4 py-2 rounded-lg bg-slate-800 font-semibold focus:ring-2 focus:ring-cyan-400  font-semibold text-white cursor-pointer group focus:outline-none 
+           hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-blue-200 
+           hover:shadow-lg transition-all duration-500"
                         onClick={() => {
                           navigate('/profile');
                           setOpen(false);
