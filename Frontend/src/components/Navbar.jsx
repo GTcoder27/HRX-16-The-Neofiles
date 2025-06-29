@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Logo from '../../public/logo.svg';
 import { useFirebase } from '../context/Firebase.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const { authUser, logout } = useFirebase();
   const navigate = useNavigate();
+  const location = useLocation();
   const menuRef = useRef();
 
   const email = authUser?.email || '';
@@ -61,24 +62,34 @@ export default function Header() {
             </div>
           </div>
 
-
-
-
           {/* Right Side: Authenticated User Dropdown */}
           {authUser && (
             <div className="flex items-center gap-3 lg:gap-4">
-              {/* All Projects */}
-              <button
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white cursor-pointer group focus:outline-none 
-           hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-blue-200 
-           hover:shadow-lg transition-all duration-500"
+              {/* Home Page - Only show when NOT on home page */}
+              {location.pathname !== '/' && (
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white cursor-pointer group focus:outline-none 
+             hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-blue-200 
+             hover:shadow-lg transition-all duration-500"
+                  tabIndex={0}
+                  onClick={() => navigate('/')}
+                >
+                  Home
+                </button>
+              )}
 
-                tabIndex={0}
-                onClick={() => navigate('/allprojects')}
-              >
-                My Projects
-              </button>
-
+              {/* All Projects - Only show when NOT on projects page */}
+              {location.pathname !== '/allprojects' && (
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white cursor-pointer group focus:outline-none 
+             hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-blue-200 
+             hover:shadow-lg transition-all duration-500"
+                  tabIndex={0}
+                  onClick={() => navigate('/allprojects')}
+                >
+                  My Projects
+                </button>
+              )}
 
               <div className="relative flex items-center" ref={menuRef}>
                 <button
