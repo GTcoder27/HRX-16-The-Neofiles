@@ -293,27 +293,26 @@ const AllProjectsPage = () => {
   const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
   const statuses = ['All', 'Not Started', 'In Progress', 'Completed'];
 
-  // Load community projects from Firebase
+  // Load user's projects from Firebase
   useEffect(() => {
     const loadProjects = async () => {
       setLoading(true);
+      if (!authUser?.email) {
+        setLoading(false);
+        setProjects([]);
+        setFilteredProjects([]);
+        return;
+      }
+
       try {
-        // Get all user carts from the database
-        const result = await getAllDocuments('user_carts');
+        // Get only the logged-in user's cart
+        const result = await getData('user_carts', authUser.email);
         
-        if (result.success) {
-          // Extract all projects from all user carts
-          let allProjects = [];
-          result.data.forEach(userCart => {
-            if (userCart.projects && Array.isArray(userCart.projects)) {
-              allProjects = [...allProjects, ...userCart.projects];
-            }
-          });
-          
-          setProjects(allProjects);
-          setFilteredProjects(allProjects);
+        if (result.success && result.data && result.data.projects) {
+          setProjects(result.data.projects);
+          setFilteredProjects(result.data.projects);
         } else {
-          console.error('Error loading projects:', result.error);
+          // No projects found for user
           setProjects([]);
           setFilteredProjects([]);
         }
@@ -327,7 +326,7 @@ const AllProjectsPage = () => {
     };
 
     loadProjects();
-  }, [getAllDocuments]);
+  }, [getData, authUser]);
 
   // Filter projects based on search and filters
   useEffect(() => {
@@ -440,7 +439,7 @@ const AllProjectsPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Loading community projects...</p>
+          <p className="text-slate-400">Loading your projects...</p>
         </div>
       </div>
     );
@@ -454,10 +453,10 @@ const AllProjectsPage = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
-                Community Projects
+                My Projects
               </h1>
               <p className="text-slate-400">
-                Discover and add projects created by our community members
+                View and manage your personal project collection
               </p>
             </div>
 
